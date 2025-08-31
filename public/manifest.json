@@ -1,6 +1,12 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "name": "MediConnect - App Medica",
+  "short_name": "MediConnect",
+  "description": "Monitora i tuoi dati medici",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007bff",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "favicon.ico",
@@ -14,12 +20,8 @@
     },
     {
       "src": "logo512.png",
-      "type": "image/png",
+      "type": "image/png", 
       "sizes": "512x512"
     }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  ]
 }
