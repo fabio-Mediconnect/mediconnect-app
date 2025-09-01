@@ -6,8 +6,6 @@ const MedicalApp = () => {
   const [activeTab, setActiveTab] = useState('insert');
   const [formData, setFormData] = useState({
     pressione: '',
-    battiti: '',
-    saturazione: '',
     glicemia: '',
     temperatura: '',
     sintomi: '',
@@ -36,8 +34,6 @@ const MedicalApp = () => {
     endDate: '',
     includeData: {
       pressione: true,
-      battiti: true,
-      saturazione: true,
       glicemia: true,
       temperatura: true,
       sintomi: true,
@@ -58,8 +54,6 @@ const MedicalApp = () => {
         date: '2025-08-31',
         time: '09:00',
         pressione: '125/82',
-        battiti: '75',
-        saturazione: '98',
         glicemia: '98',
         temperatura: '36.8',
         sintomi: 'Leggero mal di testa mattutino'
@@ -69,8 +63,6 @@ const MedicalApp = () => {
         date: '2025-08-30',
         time: '14:30',
         pressione: '120/80',
-        battiti: '72',
-        saturazione: '97',
         glicemia: '95',
         temperatura: '36.5',
         sintomi: 'Leggero mal di testa, stanchezza'
@@ -80,8 +72,6 @@ const MedicalApp = () => {
         date: '2025-08-29',
         time: '08:15',
         pressione: '118/78',
-        battiti: '68',
-        saturazione: '99',
         glicemia: '92',
         temperatura: '36.4',
         sintomi: 'Nessun sintomo particolare'
@@ -91,8 +81,6 @@ const MedicalApp = () => {
         date: '2025-08-28',
         time: '19:45',
         pressione: '122/79',
-        battiti: '70',
-        saturazione: '98',
         glicemia: '88',
         temperatura: '36.7',
         sintomi: 'Tutto nella norma'
@@ -102,8 +90,6 @@ const MedicalApp = () => {
         date: '2025-08-27',
         time: '08:30',
         pressione: '115/75',
-        battiti: '65',
-        saturazione: '99',
         glicemia: '90',
         temperatura: '36.3',
         sintomi: 'Sensazione di benessere'
@@ -142,7 +128,7 @@ const MedicalApp = () => {
   };
 
   const handleSubmit = () => {
-    if (!formData.pressione && !formData.battiti && !formData.saturazione && !formData.glicemia && !formData.temperatura) {
+    if (!formData.pressione && !formData.glicemia && !formData.temperatura) {
       alert('Inserisci almeno un valore!');
       return;
     }
@@ -161,8 +147,6 @@ const MedicalApp = () => {
         date: formData.data,
         time: formData.ora,
         pressione: formData.pressione,
-        battiti: formData.battiti,
-        saturazione: formData.saturazione,
         glicemia: formData.glicemia,
         temperatura: formData.temperatura,
         sintomi: formData.sintomi
@@ -174,8 +158,6 @@ const MedicalApp = () => {
 
     setFormData({ 
       pressione: '', 
-      battiti: '',
-      saturazione: '',
       glicemia: '', 
       temperatura: '', 
       sintomi: '',
@@ -222,8 +204,6 @@ const MedicalApp = () => {
     if (item) {
       setFormData({
         pressione: item.pressione || '',
-        battiti: item.battiti || '',
-        saturazione: item.saturazione || '',
         glicemia: item.glicemia || '',
         temperatura: item.temperatura || '',
         sintomi: item.sintomi || '',
@@ -264,64 +244,25 @@ const MedicalApp = () => {
     }
   };
 
-  const handleInvite = async () => {
+  const handleInvite = () => {
     if (!shareData.email.includes('@') || !shareData.nome) {
       alert('Inserisci email e nome validi!');
       return;
     }
 
-    // Simula invio email reale
-    try {
-      // In un'app reale, qui faresti una chiamata API al tuo backend
-      const emailData = {
-        to: shareData.email,
-        subject: `🏥 ${shareData.nome}, sei stato invitato su MediConnect`,
-        html: `
-          <h2>🏥 Benvenuto su MediConnect!</h2>
-          <p>Ciao <strong>${shareData.nome}</strong>,</p>
-          <p>Sei stato invitato a visualizzare i dati medici di un utente su MediConnect.</p>
-          
-          <h3>📱 Come iniziare:</h3>
-          <ol>
-            <li><strong>Scarica l'app</strong>: <a href="#" style="color: #4299e1;">Clicca qui per accedere a MediConnect</a></li>
-            <li><strong>Crea il tuo account</strong> usando questa email: ${shareData.email}</li>
-            <li><strong>Accedi ai dati condivisi</strong> nella sezione "Pazienti"</li>
-          </ol>
-          
-          <h3>🔒 Privacy e Sicurezza:</h3>
-          <p>• I dati sono crittografati e sicuri<br>
-          • Accesso solo ai dati autorizzati<br>
-          • Possibilità di revocare l'accesso in qualsiasi momento</p>
-          
-          <p>Grazie per aver scelto MediConnect per la gestione della salute!</p>
-          <p><em>Il team MediConnect</em></p>
-        `
-      };
+    const inviteInfo = {
+      email: shareData.email,
+      nome: shareData.nome,
+      ruolo: shareData.ruolo,
+      invitedDate: new Date().toLocaleString('it-IT'),
+      status: 'Invitato'
+    };
 
-      // Simula chiamata API
-      console.log('📧 Invio email a:', emailData);
-      
-      // Simula ritardo di rete
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      const inviteInfo = {
-        email: shareData.email,
-        nome: shareData.nome,
-        ruolo: shareData.ruolo,
-        invitedDate: new Date().toLocaleString('it-IT'),
-        status: 'Invitato',
-        emailSent: true
-      };
-
-      setSharedWith(prev => [inviteInfo, ...prev]);
-      setShowInviteModal(false);
-      
-      alert(`✅ Invito inviato con successo!\n\n📧 Email inviata a: ${shareData.nome} (${shareData.email})\n📋 Oggetto: "Invito su MediConnect"\n🔗 Include link di download e istruzioni`);
-      
-    } catch (error) {
-      console.error('Errore invio email:', error);
-      alert('❌ Errore nell\'invio dell\'email. Riprova più tardi.');
-    }
+    setSharedWith(prev => [inviteInfo, ...prev]);
+    setShowInviteModal(false);
+    
+    // Simula invio email
+    alert(`✅ Invito inviato a ${shareData.nome} (${shareData.email})!\n\n📧 Email inviata con:\n- Link per scaricare MediConnect\n- Istruzioni per l'accesso\n- Spiegazione dell'app`);
     
     setShareData({
       email: '',
@@ -329,83 +270,43 @@ const MedicalApp = () => {
       ruolo: 'medico',
       startDate: '',
       endDate: '',
-      includeData: { pressione: true, battiti: true, saturazione: true, glicemia: true, temperatura: true, sintomi: true, medicine: true }
+      includeData: { pressione: true, glicemia: true, temperatura: true, sintomi: true, medicine: true }
     });
   };
 
-  const handleShare = async () => {
+  const handleShare = () => {
     if (!shareData.email.includes('@')) {
       alert('Inserisci un email valida!');
       return;
     }
 
-    try {
-      let dataToShare = medicalData;
-      if (shareData.startDate || shareData.endDate) {
-        dataToShare = medicalData.filter(entry => {
-          const entryDate = new Date(entry.date);
-          const start = shareData.startDate ? new Date(shareData.startDate) : new Date('1900-01-01');
-          const end = shareData.endDate ? new Date(shareData.endDate) : new Date('2100-12-31');
-          return entryDate >= start && entryDate <= end;
-        });
-      }
-
-      // Simula invio email con dati
-      const emailData = {
-        to: shareData.email,
-        subject: `📊 Nuovi dati medici condivisi - MediConnect`,
-        attachments: {
-          medicalData: dataToShare,
-          medicines: shareData.includeData.medicine ? medicines : [],
-          period: shareData.startDate && shareData.endDate ? 
-            `${shareData.startDate} - ${shareData.endDate}` : 'Tutti i dati'
-        },
-        html: `
-          <h2>📊 Dati Medici Aggiornati</h2>
-          <p>Sono stati condivisi nuovi dati medici con te su MediConnect.</p>
-          
-          <h3>📋 Riepilogo:</h3>
-          <ul>
-            <li><strong>📊 Misurazioni:</strong> ${dataToShare.length}</li>
-            <li><strong>💊 Medicine:</strong> ${shareData.includeData.medicine ? medicines.length : 0}</li>
-            <li><strong>📅 Periodo:</strong> ${shareData.startDate && shareData.endDate ? 
-              `${shareData.startDate} - ${shareData.endDate}` : 'Tutti i dati'}</li>
-          </ul>
-          
-          <p><a href="#" style="background: #4299e1; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">🔗 Visualizza su MediConnect</a></p>
-          
-          <p><em>I dati sono protetti e accessibili solo a te.</em></p>
-        `
-      };
-
-      console.log('📧 Invio dati a:', emailData);
-      
-      // Simula ritardo di rete
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      const shareInfo = {
-        email: shareData.email,
-        dataCount: dataToShare.length,
-        medicineCount: shareData.includeData.medicine ? medicines.length : 0,
-        dateRange: shareData.startDate && shareData.endDate ? 
-          `${shareData.startDate} - ${shareData.endDate}` : 'Tutti i dati',
-        sharedDate: new Date().toLocaleString('it-IT'),
-        emailSent: true
-      };
-
-      setSharedWith(prev => prev.map(item => 
-        item.email === shareData.email 
-          ? { ...item, ...shareInfo, status: 'Dati condivisi' }
-          : item
-      ));
-      
-      setShowShareModal(false);
-      alert(`✅ Dati inviati con successo!\n\n📧 Email inviata a: ${shareData.email}\n📊 ${shareInfo.dataCount} misurazioni\n💊 ${shareInfo.medicineCount} medicine\n📎 File PDF allegato con tutti i dati`);
-
-    } catch (error) {
-      console.error('Errore condivisione:', error);
-      alert('❌ Errore nella condivisione dei dati. Riprova più tardi.');
+    let dataToShare = medicalData;
+    if (shareData.startDate || shareData.endDate) {
+      dataToShare = medicalData.filter(entry => {
+        const entryDate = new Date(entry.date);
+        const start = shareData.startDate ? new Date(shareData.startDate) : new Date('1900-01-01');
+        const end = shareData.endDate ? new Date(shareData.endDate) : new Date('2100-12-31');
+        return entryDate >= start && entryDate <= end;
+      });
     }
+
+    const shareInfo = {
+      email: shareData.email,
+      dataCount: dataToShare.length,
+      medicineCount: shareData.includeData.medicine ? medicines.length : 0,
+      dateRange: shareData.startDate && shareData.endDate ? 
+        `${shareData.startDate} - ${shareData.endDate}` : 'Tutti i dati',
+      sharedDate: new Date().toLocaleString('it-IT')
+    };
+
+    setSharedWith(prev => prev.map(item => 
+      item.email === shareData.email 
+        ? { ...item, ...shareInfo, status: 'Dati condivisi' }
+        : item
+    ));
+    
+    setShowShareModal(false);
+    alert(`✅ Dati condivisi con ${shareInfo.email}!\n📊 ${shareInfo.dataCount} misurazioni\n💊 ${shareInfo.medicineCount} medicine`);
   };
 
   const filteredMedicalData = filterDate ? 
@@ -417,11 +318,9 @@ const MedicalApp = () => {
     date: new Date(entry.date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' }),
     pressione_sys: entry.pressione ? parseInt(entry.pressione.split('/')[0]) : null,
     pressione_dia: entry.pressione ? parseInt(entry.pressione.split('/')[1]) : null,
-    battiti: entry.battiti ? parseInt(entry.battiti) : null,
-    saturazione: entry.saturazione ? parseInt(entry.saturazione) : null,
     glicemia: entry.glicemia ? parseInt(entry.glicemia) : null,
     temperatura: entry.temperatura ? parseFloat(entry.temperatura) : null
-  })).filter(item => item.pressione_sys || item.battiti || item.saturazione || item.glicemia || item.temperatura);
+  })).filter(item => item.pressione_sys || item.glicemia || item.temperatura);
 
   // CSS integrato
   const styles = {
@@ -833,8 +732,6 @@ const MedicalApp = () => {
             setEditingId(null);
             setFormData({
               pressione: '', 
-              battiti: '',
-              saturazione: '',
               glicemia: '', 
               temperatura: '', 
               sintomi: '',
@@ -1118,20 +1015,6 @@ const MedicalApp = () => {
                     <div style={styles.valueUnit}>mmHg</div>
                   </div>
                 )}
-                {entry.battiti && (
-                  <div style={{...styles.valueCard, borderTop: '3px solid #e53e3e'}}>
-                    <div style={styles.valueLabel}>💓 Battiti</div>
-                    <div style={{...styles.valueNumber, color: '#e53e3e'}}>{entry.battiti}</div>
-                    <div style={styles.valueUnit}>bpm</div>
-                  </div>
-                )}
-                {entry.saturazione && (
-                  <div style={{...styles.valueCard, borderTop: '3px solid #e53e3e'}}>
-                    <div style={styles.valueLabel}>🫁 Saturazione</div>
-                    <div style={{...styles.valueNumber, color: '#e53e3e'}}>{entry.saturazione}</div>
-                    <div style={styles.valueUnit}>%</div>
-                  </div>
-                )}
                 {entry.glicemia && (
                   <div style={{...styles.valueCard, borderTop: '3px solid #3182ce'}}>
                     <div style={styles.valueLabel}>🩸 Glicemia</div>
@@ -1179,26 +1062,6 @@ const MedicalApp = () => {
         >
           <Heart size={16} />
           Pressione
-        </button>
-        <button
-          onClick={() => setChartType('battiti')}
-          style={{
-            ...styles.tab,
-            ...(chartType === 'battiti' ? styles.activeTab : {})
-          }}
-        >
-          <Activity size={16} />
-          Battiti
-        </button>
-        <button
-          onClick={() => setChartType('saturazione')}
-          style={{
-            ...styles.tab,
-            ...(chartType === 'saturazione' ? styles.activeTab : {})
-          }}
-        >
-          <Droplet size={16} />
-          Saturazione
         </button>
         <button
           onClick={() => setChartType('glicemia')}
@@ -1269,68 +1132,6 @@ const MedicalApp = () => {
                   name="Diastolica"
                   connectNulls={false}
                   dot={{ fill: '#3182ce', strokeWidth: 2, r: 6 }}
-                />
-              </RechartsLineChart>
-            ) : chartType === 'battiti' ? (
-              <RechartsLineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis 
-                  dataKey="date" 
-                  stroke="#718096"
-                  style={{ fontSize: '12px' }}
-                />
-                <YAxis 
-                  stroke="#718096"
-                  style={{ fontSize: '12px' }}
-                  domain={['dataMin - 5', 'dataMax + 5']}
-                />
-                <Tooltip 
-                  contentStyle={{
-                    backgroundColor: '#fff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                  }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="battiti" 
-                  stroke="#e53e3e" 
-                  strokeWidth={3}
-                  name="Battiti (bpm)"
-                  connectNulls={false}
-                  dot={{ fill: '#e53e3e', strokeWidth: 2, r: 6 }}
-                />
-              </RechartsLineChart>
-            ) : chartType === 'saturazione' ? (
-              <RechartsLineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis 
-                  dataKey="date" 
-                  stroke="#718096"
-                  style={{ fontSize: '12px' }}
-                />
-                <YAxis 
-                  stroke="#718096"
-                  style={{ fontSize: '12px' }}
-                  domain={[90, 100]}
-                />
-                <Tooltip 
-                  contentStyle={{
-                    backgroundColor: '#fff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                  }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="saturazione" 
-                  stroke="#e53e3e" 
-                  strokeWidth={3}
-                  name="Saturazione O2 (%)"
-                  connectNulls={false}
-                  dot={{ fill: '#e53e3e', strokeWidth: 2, r: 6 }}
                 />
               </RechartsLineChart>
             ) : chartType === 'glicemia' ? (
@@ -1424,51 +1225,6 @@ const MedicalApp = () => {
                   }
                 </div>
                 <div style={styles.valueUnit}>mmHg</div>
-              </div>
-            </>
-          )}
-          {chartType === 'battiti' && (
-            <>
-              <div style={{...styles.valueCard, borderTop: '3px solid #e53e3e'}}>
-                <div style={styles.valueLabel}>💓 Media Battiti</div>
-                <div style={{...styles.valueNumber, color: '#e53e3e'}}>
-                  {chartData.length > 0 
-                    ? Math.round(chartData.filter(d => d.battiti).reduce((a, b) => a + b.battiti, 0) / chartData.filter(d => d.battiti).length)
-                    : '-'
-                  }
-                </div>
-                <div style={styles.valueUnit}>bpm</div>
-              </div>
-              <div style={{...styles.valueCard, borderTop: '3px solid #48bb78'}}>
-                <div style={styles.valueLabel}>📊 Misurazioni</div>
-                <div style={{...styles.valueNumber, color: '#48bb78'}}>
-                  {chartData.filter(d => d.battiti).length}
-                </div>
-                <div style={styles.valueUnit}>totali</div>
-              </div>
-            </>
-          )}
-          {chartType === 'saturazione' && (
-            <>
-              <div style={{...styles.valueCard, borderTop: '3px solid #e53e3e'}}>
-                <div style={styles.valueLabel}>🫁 Media Saturazione</div>
-                <div style={{...styles.valueNumber, color: '#e53e3e'}}>
-                  {chartData.length > 0 
-                    ? Math.round(chartData.filter(d => d.saturazione).reduce((a, b) => a + b.saturazione, 0) / chartData.filter(d => d.saturazione).length)
-                    : '-'
-                  }
-                </div>
-                <div style={styles.valueUnit}>%</div>
-              </div>
-              <div style={{...styles.valueCard, borderTop: '3px solid #48bb78'}}>
-                <div style={styles.valueLabel}>🎯 Minima</div>
-                <div style={{...styles.valueNumber, color: '#48bb78'}}>
-                  {chartData.length > 0 
-                    ? Math.min(...chartData.filter(d => d.saturazione).map(d => d.saturazione))
-                    : '-'
-                  }
-                </div>
-                <div style={styles.valueUnit}>%</div>
               </div>
             </>
           )}
@@ -1877,8 +1633,6 @@ const MedicalApp = () => {
                 
                 {Object.entries({
                   pressione: '❤️ Pressione Arteriosa',
-                  battiti: '💓 Battiti Cardiaci',
-                  saturazione: '🫁 Saturazione O2',
                   glicemia: '🩸 Glicemia',
                   temperatura: '🌡️ Temperatura Corporea', 
                   sintomi: '💭 Sintomi e Note',
