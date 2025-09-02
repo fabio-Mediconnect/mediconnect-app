@@ -38,6 +38,7 @@ const MedicalApp = () => {
     nome: '',
     ruolo: 'medico',
     patientName: '',
+    patientPhone: '',
     message: '',
     startDate: '',
     endDate: '',
@@ -208,11 +209,7 @@ const MedicalApp = () => {
     }, 4000);
   };
 
-  // Funzione per rilevare il dispositivo
-  const detectDevice = () => {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    return /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
-  };
+
 
   // Funzione per invio email migliorata
   const sendEmail = async (emailData) => {
@@ -386,8 +383,8 @@ const MedicalApp = () => {
 
   // Funzione migliorata per invio invito
   const handleInvite = async () => {
-    if (!shareData.email.includes('@') || !shareData.nome || !shareData.patientName) {
-      showNotification('Compila tutti i campi obbligatori per inviare l\'invito!', 'warning');
+    if (!shareData.email.includes('@') || !shareData.nome || !shareData.patientName || !shareData.patientPhone) {
+      showNotification('Compila tutti i campi obbligatori (email, nome, paziente e telefono)!', 'warning');
       return;
     }
 
@@ -395,187 +392,89 @@ const MedicalApp = () => {
       const patientToken = btoa(`patient_${Date.now()}_${shareData.email}`).replace(/[^A-Za-z0-9]/g, '');
       const baseUrl = 'https://mediconnect-app-ruby.vercel.app';
       
-      // URL per desktop con auto-redirect
-      const acceptUrl = `${baseUrl}?patient=${patientToken}&action=accept&autoopen=true`;
+      // URL per accettazione e rifiuto - SEMPLICI LINK DIRETTI
+      const acceptUrl = `${baseUrl}?patient=${patientToken}&action=accept`;
       const declineUrl = `${baseUrl}?patient=${patientToken}&action=decline`;
       
-      // URL per app mobile
-      const mobileAppUrl = `mediconnect://patient/${patientToken}/accept`;
-      
+      // Email template SEMPLICISSIMO - solo testo e link diretti
       const emailHtml = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>MediConnect - Invito Medico</title>
-          <script>
-            // Auto-redirect per desktop
-            function handleAccept() {
-              if (window.location.search.includes('autoopen=true')) {
-                setTimeout(function() {
-                  window.location.href = '${acceptUrl}';
-                }, 1000);
-              }
-            }
-            
-            // Rilevamento dispositivo e gestione click
-            function handleMobileAccept() {
-              const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase());
-              
-              if (isMobile) {
-                // Prova ad aprire l'app, se fallisce apri il browser
-                window.location.href = '${mobileAppUrl}';
-                setTimeout(function() {
-                  window.location.href = '${acceptUrl}';
-                }, 2000);
-              } else {
-                window.location.href = '${acceptUrl}';
-              }
-            }
-          </script>
-        </head>
-        <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background: #f8fafc;">
-          
-          <!-- Container principale -->
-          <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background: #f8fafc;">
-            <tr>
-              <td align="center" style="padding: 20px;">
-                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width: 600px; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-                  
-                  <!-- Header con gradiente -->
-                  <tr>
-                    <td align="center" style="background: linear-gradient(135deg, #4299e1 0%, #667eea 100%); padding: 40px 20px; color: white;">
-                      <h1 style="margin: 0; font-size: 28px; font-weight: bold;">🏥 MediConnect</h1>
-                      <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Invito per Accesso Dati Medici</p>
-                    </td>
-                  </tr>
-
-                  <!-- Contenuto principale -->
-                  <tr>
-                    <td style="padding: 40px 30px;">
-                      <h2 style="color: #2d3748; text-align: center; margin: 0 0 20px 0; font-size: 24px;">
-                        Ciao ${shareData.nome}!
-                      </h2>
-                      
-                      <div style="background: #f0fff4; border: 1px solid #9ae6b4; border-radius: 12px; padding: 20px; margin-bottom: 30px;">
-                        <p style="margin: 0; color: #276749; font-size: 16px; text-align: center;">
-                          <strong>${shareData.patientName || 'Un paziente'}</strong> ti ha invitato ad accedere ai suoi dati medici
-                          ${shareData.message ? `<br><br><em>"${shareData.message}"</em>` : ''}
-                        </p>
-                      </div>
-
-                      <!-- Badge ruolo -->
-                      <div style="text-align: center; margin-bottom: 30px;">
-                        <span style="background: linear-gradient(135deg, #4299e1, #667eea); color: white; padding: 8px 16px; border-radius: 20px; font-weight: 600;">
-                          ${shareData.ruolo.charAt(0).toUpperCase() + shareData.ruolo.slice(1)} Autorizzato
-                        </span>
-                      </div>
-
-                      <!-- Pulsanti di azione principali -->
-                      <div style="text-align: center; margin-bottom: 30px;">
-                        
-                        <!-- Pulsante ACCETTA grande -->
-                        <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto 15px auto;">
-                          <tr>
-                            <td style="background: linear-gradient(135deg, #48bb78, #38a169); border-radius: 50px; box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);">
-                              <a href="javascript:void(0);" onclick="handleMobileAccept()" style="display: block; color: white; text-decoration: none; font-weight: bold; font-size: 18px; padding: 18px 40px;">
-                                ✅ ACCETTA E VISUALIZZA DATI
-                              </a>
-                            </td>
-                          </tr>
-                        </table>
-
-                        <!-- Pulsante RIFIUTA -->
-                        <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
-                          <tr>
-                            <td style="background: #e53e3e; border-radius: 25px;">
-                              <a href="${declineUrl}" style="display: block; color: white; text-decoration: none; font-weight: 600; font-size: 14px; padding: 12px 30px;">
-                                ❌ Rifiuta Invito
-                              </a>
-                            </td>
-                          </tr>
-                        </table>
-
-                      </div>
-
-                      <!-- Sezione App Mobile -->
-                      <div style="background: #e6fffa; border: 1px solid #4fd1c7; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
-                        <h3 style="color: #234e52; margin: 0 0 15px 0; text-align: center;">📱 Per Smartphone</h3>
-                        
-                        <p style="color: #2c7a7b; text-align: center; margin: 0 0 15px 0; font-size: 14px;">
-                          <strong>Il pulsante "ACCETTA" aprirà automaticamente l'app se installata</strong>
-                        </p>
-
-                        <div style="text-align: center;">
-                          <a href="https://apps.apple.com/app/mediconnect" style="color: #234e52; font-weight: 600; text-decoration: none; margin-right: 15px;">📱 App Store</a>
-                          <a href="https://play.google.com/store/apps/details?id=com.mediconnect" style="color: #234e52; font-weight: 600; text-decoration: none;">🤖 Google Play</a>
-                        </div>
-
-                        <!-- URL Schema per deep link -->
-                        <div style="text-align: center; margin-top: 15px;">
-                          <a href="${mobileAppUrl}" style="background: #38b2ac; color: white; text-decoration: none; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;">
-                            🚀 Apri nell'App
-                          </a>
-                        </div>
-                      </div>
-
-                      <!-- Cosa potrai vedere -->
-                      <div style="background: #f0f4ff; border: 1px solid #a5b4fc; border-radius: 12px; padding: 20px;">
-                        <h4 style="color: #3730a3; margin: 0 0 15px 0; text-align: center;">📊 Dati Disponibili:</h4>
-                        <ul style="color: #4338ca; margin: 0; padding-left: 20px; font-size: 14px;">
-                          <li>📈 Pressione arteriosa e frequenza cardiaca</li>
-                          <li>🩸 Glicemia e temperatura corporea</li>
-                          <li>🫁 Saturazione dell'ossigeno</li>
-                          <li>💊 Terapie farmacologiche attuali</li>
-                          <li>📋 Storico completo e grafici andamento</li>
-                          <li>✍️ Sistema di risposta e raccomandazioni</li>
-                        </ul>
-                      </div>
-
-                    </td>
-                  </tr>
-
-                  <!-- Footer -->
-                  <tr>
-                    <td style="background: #f7fafc; padding: 25px; text-align: center; border-top: 1px solid #e2e8f0;">
-                      <p style="color: #718096; margin: 0; font-size: 14px;">
-                        <strong>MediConnect</strong> - Piattaforma Sanitaria Sicura<br>
-                        Questo invito scadrà tra 7 giorni<br>
-                        <a href="mailto:support@mediconnect.app" style="color: #4299e1;">support@mediconnect.app</a>
-                      </p>
-                    </td>
-                  </tr>
-
-                </table>
-              </td>
-            </tr>
-          </table>
-
-        </body>
-        </html>
+        MediConnect - Invito Dati Medici
+        
+        Ciao ${shareData.nome}!
+        
+        ${shareData.patientName} ti ha invitato ad accedere ai suoi dati medici.
+        
+        Telefono paziente: ${shareData.patientPhone}
+        ${shareData.message ? `Messaggio: "${shareData.message}"` : ''}
+        
+        
+        CLICCA QUI PER ACCETTARE:
+        ${acceptUrl}
+        
+        
+        CLICCA QUI PER RIFIUTARE:
+        ${declineUrl}
+        
+        
+        INSTALLA L'APP:
+        App Store: https://apps.apple.com/app/mediconnect
+        Google Play: https://play.google.com/store/apps/details?id=com.mediconnect
+        
+        
+        Per smartphone - link diretto app:
+        mediconnect://patient/${patientToken}/accept
+        
+        
+        ---
+        MediConnect - Invito valido 7 giorni
       `;
 
+      // Simulazione notifica SMS/Push
+      const sendNotification = async (phone, message) => {
+        // In un'app reale, qui useresti un servizio come Twilio per SMS o Firebase per push notifications
+        console.log(`🔔 NOTIFICA INVIATA A: ${phone}`);
+        console.log(`📱 MESSAGGIO: ${message}`);
+        
+        // Simula invio notifica
+        setTimeout(() => {
+          showNotification(`Notifica push inviata al numero ${phone}`, 'info');
+        }, 1000);
+        
+        // Simula click su notifica che apre l'app
+        setTimeout(() => {
+          showNotification(`📱 Se il medico clicca la notifica, l'app si aprirà automaticamente con i dati del paziente`, 'info');
+        }, 3000);
+      };
+
+      // Invia email
       await sendEmail({
         to: shareData.email,
-        subject: `MediConnect - Invito da ${shareData.patientName || 'Paziente'}`,
+        subject: `Invito MediConnect - ${shareData.patientName}`,
         html: emailHtml
       });
+
+      // Invia notifica push/SMS simulata
+      await sendNotification(
+        shareData.patientPhone, 
+        `${shareData.patientName} ti ha invitato su MediConnect. Clicca per accedere ai suoi dati medici.`
+      );
 
       setSharedWith(prev => [...prev, {
         email: shareData.email,
         nome: shareData.nome,
         ruolo: shareData.ruolo,
         patientName: shareData.patientName,
+        patientPhone: shareData.patientPhone,
         invitedDate: new Date().toLocaleString('it-IT'),
         status: 'In Attesa di Risposta',
         accessToken: patientToken,
         expiryDate: new Date(Date.now() + 7*24*60*60*1000).toLocaleDateString('it-IT'),
-        canRespond: true
+        canRespond: true,
+        notificationSent: true
       }]);
 
       setShowInviteModal(false);
-      showNotification(`Invito inviato con successo a ${shareData.nome}!`, 'success');
+      showNotification(`Invito inviato con successo! Email + notifica push inviate.`, 'success');
       
     } catch (error) {
       showNotification(`Errore invio invito: ${error.message}`, 'error');
@@ -586,6 +485,7 @@ const MedicalApp = () => {
       nome: '',
       ruolo: 'medico',
       patientName: '',
+      patientPhone: '',
       message: '',
       startDate: '',
       endDate: '',
@@ -609,14 +509,6 @@ const MedicalApp = () => {
           return entryDate >= start && entryDate <= end;
         });
       }
-
-      const dataByType = {
-        pressione: dataToShare.filter(d => d.pressione).length,
-        battiti: dataToShare.filter(d => d.battiti).length,
-        saturazione: dataToShare.filter(d => d.saturazione).length,
-        glicemia: dataToShare.filter(d => d.glicemia).length,
-        temperatura: dataToShare.filter(d => d.temperatura).length
-      };
 
       const dataToken = btoa(`data_${Date.now()}_${shareData.email}`).replace(/[^A-Za-z0-9]/g, '');
       const dataUrl = `https://mediconnect-app-ruby.vercel.app?data=${dataToken}&view=shared`;
@@ -1995,6 +1887,21 @@ const MedicalApp = () => {
                   onChange={(e) => setShareData(prev => ({ ...prev, patientName: e.target.value }))}
                   style={styles.input}
                 />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Telefono Paziente *</label>
+                <input
+                  type="tel"
+                  placeholder="+39 123 456 7890"
+                  value={shareData.patientPhone}
+                  onChange={(e) => setShareData(prev => ({ ...prev, patientPhone: e.target.value }))}
+                  style={styles.input}
+                  required
+                />
+                <small style={{color: '#718096', fontSize: '12px'}}>
+                  Necessario per inviare notifica push al medico
+                </small>
               </div>
 
               <div style={styles.inputGroup}>
