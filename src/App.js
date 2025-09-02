@@ -129,12 +129,19 @@ const MedicalApp = () => {
     setMedicines(sampleMedicines);
   }, []);
 
-  // Simulate email sending
+  // Email simulation function (in real environment, use EmailJS or backend service)
   const sendEmail = async (emailData) => {
     try {
-      console.log('Email inviata:', emailData.to);
+      // Simulate email sending with detailed logging
+      console.log('=== EMAIL SIMULATA ===');
+      console.log('Destinatario:', emailData.to);
       console.log('Oggetto:', emailData.subject);
-      console.log('Contenuto HTML:', emailData.html);
+      console.log('Contenuto HTML:');
+      console.log(emailData.html);
+      console.log('==================');
+      
+      // Show alert to user about email simulation
+      alert(`EMAIL SIMULATA INVIATA!\n\nDestinatario: ${emailData.to}\nOggetto: ${emailData.subject}\n\nNOTA: In ambiente reale, configurare EmailJS o un servizio backend per l'invio effettivo delle email. Controlla la console per i dettagli.`);
       
       // Simulate delay
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -280,18 +287,51 @@ const MedicalApp = () => {
 
     try {
       const emailHtml = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #4299e1;">MediConnect - Invito</h1>
-          <p>Ciao ${shareData.nome},</p>
-          <p>Sei stato invitato a utilizzare MediConnect per monitorare i dati sanitari.</p>
-          <p>Ruolo: ${shareData.ruolo}</p>
-          <p>Scarica l'app e inizia subito!</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #4299e1; margin: 0;">🏥 MediConnect</h1>
+            <h2 style="color: #2d3748; margin: 10px 0;">Invito alla Piattaforma</h2>
+          </div>
+          
+          <p style="font-size: 16px; color: #4a5568;">Ciao <strong>${shareData.nome}</strong>,</p>
+          
+          <p style="font-size: 16px; color: #4a5568; line-height: 1.6;">
+            Sei stato invitato a utilizzare <strong>MediConnect</strong>, una piattaforma per il monitoraggio 
+            e la condivisione dei dati sanitari.
+          </p>
+          
+          <div style="background: #f7fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #2d3748; margin-top: 0;">I tuoi dettagli:</h3>
+            <p style="margin: 5px 0;"><strong>Ruolo:</strong> ${shareData.ruolo}</p>
+            <p style="margin: 5px 0;"><strong>Email:</strong> ${shareData.email}</p>
+          </div>
+          
+          <div style="background: #e6fffa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #38b2ac;">
+            <h3 style="color: #2d3748; margin-top: 0;">Come iniziare:</h3>
+            <ol style="color: #4a5568; padding-left: 20px;">
+              <li>Scarica l'app MediConnect dal tuo app store</li>
+              <li>Registrati utilizzando questa email: <strong>${shareData.email}</strong></li>
+              <li>Inizia a monitorare e condividere i tuoi dati sanitari</li>
+            </ol>
+          </div>
+          
+          <p style="font-size: 16px; color: #4a5568; line-height: 1.6;">
+            Con MediConnect puoi registrare pressione arteriosa, glicemia, temperatura, 
+            saturazione e tenere traccia delle tue medicine.
+          </p>
+          
+          <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+            <p style="color: #718096; font-size: 14px;">
+              Questo invito è stato inviato tramite MediConnect<br>
+              Per assistenza, contatta il supporto tecnico.
+            </p>
+          </div>
         </div>
       `;
 
       await sendEmail({
         to: shareData.email,
-        subject: 'Invito MediConnect',
+        subject: `MediConnect - Invito per ${shareData.nome}`,
         html: emailHtml
       });
 
@@ -304,7 +344,6 @@ const MedicalApp = () => {
       }]);
 
       setShowInviteModal(false);
-      alert('Invito inviato con successo! Controlla la console per i dettagli.');
       
     } catch (error) {
       alert('Errore invio invito: ' + error.message);
@@ -337,20 +376,76 @@ const MedicalApp = () => {
         });
       }
 
+      // Create detailed medical data summary
+      const dataByType = {
+        pressione: dataToShare.filter(d => d.pressione).length,
+        battiti: dataToShare.filter(d => d.battiti).length,
+        saturazione: dataToShare.filter(d => d.saturazione).length,
+        glicemia: dataToShare.filter(d => d.glicemia).length,
+        temperatura: dataToShare.filter(d => d.temperatura).length
+      };
+
       const emailHtml = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #4299e1;">Dati Medici Condivisi</h1>
-          <p>Hai ricevuto nuovi dati medici da MediConnect.</p>
-          <p>Misurazioni: ${dataToShare.length}</p>
-          <p>Medicine: ${shareData.includeData.medicine ? medicines.length : 0}</p>
-          <p>Periodo: ${shareData.startDate && shareData.endDate ? 
-            shareData.startDate + ' - ' + shareData.endDate : 'Tutti i dati'}</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #4299e1; margin: 0;">🏥 MediConnect</h1>
+            <h2 style="color: #2d3748; margin: 10px 0;">Dati Medici Condivisi</h2>
+          </div>
+          
+          <p style="font-size: 16px; color: #4a5568;">
+            Hai ricevuto nuovi dati medici tramite MediConnect.
+          </p>
+          
+          <div style="background: #f7fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #2d3748; margin-top: 0;">Riepilogo Dati:</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <p style="margin: 5px 0;"><strong>📈 Pressione:</strong> ${dataByType.pressione} misurazioni</p>
+              <p style="margin: 5px 0;"><strong>💗 Battiti:</strong> ${dataByType.battiti} misurazioni</p>
+              <p style="margin: 5px 0;"><strong>🫁 Saturazione:</strong> ${dataByType.saturazione} misurazioni</p>
+              <p style="margin: 5px 0;"><strong>🩸 Glicemia:</strong> ${dataByType.glicemia} misurazioni</p>
+              <p style="margin: 5px 0;"><strong>🌡️ Temperatura:</strong> ${dataByType.temperatura} misurazioni</p>
+              <p style="margin: 5px 0;"><strong>💊 Medicine:</strong> ${shareData.includeData.medicine ? medicines.length : 0} farmaci</p>
+            </div>
+          </div>
+          
+          <div style="background: #fff5f5; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f56565;">
+            <h3 style="color: #2d3748; margin-top: 0;">Periodo dei Dati:</h3>
+            <p style="margin: 0; color: #4a5568;">
+              ${shareData.startDate && shareData.endDate ? 
+                `Dal ${new Date(shareData.startDate).toLocaleDateString('it-IT')} al ${new Date(shareData.endDate).toLocaleDateString('it-IT')}` : 
+                'Tutti i dati disponibili'
+              }
+            </p>
+          </div>
+          
+          ${dataToShare.length > 0 ? `
+          <div style="background: #f0fff4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #48bb78;">
+            <h3 style="color: #2d3748; margin-top: 0;">Ultime Misurazioni:</h3>
+            ${dataToShare.slice(0, 3).map(entry => `
+              <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
+                <p style="margin: 0; font-weight: bold;">${new Date(entry.date).toLocaleDateString('it-IT')} - ${entry.time}</p>
+                ${entry.pressione ? `<p style="margin: 2px 0;">Pressione: ${entry.pressione}</p>` : ''}
+                ${entry.battiti ? `<p style="margin: 2px 0;">Battiti: ${entry.battiti} bpm</p>` : ''}
+                ${entry.saturazione ? `<p style="margin: 2px 0;">Saturazione: ${entry.saturazione}%</p>` : ''}
+                ${entry.glicemia ? `<p style="margin: 2px 0;">Glicemia: ${entry.glicemia} mg/dL</p>` : ''}
+                ${entry.temperatura ? `<p style="margin: 2px 0;">Temperatura: ${entry.temperatura}°C</p>` : ''}
+              </div>
+            `).join('')}
+          </div>
+          ` : ''}
+          
+          <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+            <p style="color: #718096; font-size: 14px;">
+              Dati condivisi il ${new Date().toLocaleDateString('it-IT')} alle ${new Date().toLocaleTimeString('it-IT')}<br>
+              Tramite MediConnect - Piattaforma di Monitoraggio Sanitario
+            </p>
+          </div>
         </div>
       `;
 
       await sendEmail({
         to: shareData.email,
-        subject: 'Dati Medici - MediConnect',
+        subject: `MediConnect - Dati Medici (${dataToShare.length} misurazioni)`,
         html: emailHtml
       });
 
@@ -364,12 +459,18 @@ const MedicalApp = () => {
         status: 'Dati condivisi'
       };
 
-      setSharedWith(prev => prev.map(item => 
-        item.email === shareData.email ? { ...item, ...shareInfo } : item
-      ));
+      setSharedWith(prev => {
+        const existingIndex = prev.findIndex(item => item.email === shareData.email);
+        if (existingIndex >= 0) {
+          const updated = [...prev];
+          updated[existingIndex] = { ...updated[existingIndex], ...shareInfo };
+          return updated;
+        } else {
+          return [...prev, shareInfo];
+        }
+      });
       
       setShowShareModal(false);
-      alert('Dati condivisi con successo! Controlla la console per i dettagli.');
 
     } catch (error) {
       alert('Errore condivisione: ' + error.message);
@@ -382,47 +483,244 @@ const MedicalApp = () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>MediConnect - Report</title>
+        <title>MediConnect - Report Medico</title>
         <style>
-          body { font-family: Arial, sans-serif; margin: 20px; }
-          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-          th { background-color: #f2f2f2; }
-          .header { text-align: center; margin-bottom: 30px; }
+          body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            color: #333;
+            line-height: 1.4;
+          }
+          .header { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            border-bottom: 2px solid #4299e1;
+            padding-bottom: 20px;
+          }
+          .header h1 {
+            color: #4299e1;
+            margin: 0;
+            font-size: 2.5em;
+          }
+          .header p {
+            color: #666;
+            margin: 10px 0 0 0;
+            font-size: 1.1em;
+          }
+          table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 20px 0;
+            font-size: 14px;
+          }
+          th, td { 
+            border: 1px solid #ddd; 
+            padding: 12px 8px; 
+            text-align: left; 
+            vertical-align: top;
+          }
+          th { 
+            background-color: #4299e1; 
+            color: white;
+            font-weight: bold;
+            text-align: center;
+          }
+          tr:nth-child(even) {
+            background-color: #f8f9fa;
+          }
+          .section {
+            margin: 30px 0;
+            page-break-inside: avoid;
+          }
+          .section h2 {
+            color: #2d3748;
+            border-left: 4px solid #4299e1;
+            padding-left: 15px;
+            margin-bottom: 15px;
+          }
+          .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+          }
+          .stat-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            background: #f7fafc;
+          }
+          .stat-card h3 {
+            margin: 0 0 10px 0;
+            color: #4299e1;
+            font-size: 1.2em;
+          }
+          .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2d3748;
+            margin: 0;
+          }
+          .medicine-list {
+            background: #f0fff4;
+            border: 1px solid #68d391;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+          }
+          @media print {
+            body { margin: 0; }
+            .no-print { display: none; }
+          }
         </style>
       </head>
       <body>
         <div class="header">
-          <h1>MediConnect - Report Medico</h1>
-          <p>Generato il ${new Date().toLocaleDateString('it-IT')}</p>
+          <h1>🏥 MediConnect</h1>
+          <p>Report Medico Completo</p>
+          <p>Generato il ${new Date().toLocaleDateString('it-IT')} alle ${new Date().toLocaleTimeString('it-IT')}</p>
         </div>
     `;
 
+    // Statistics summary
+    const totalMeasurements = medicalData.length;
+    const measuredData = {
+      pressione: medicalData.filter(d => d.pressione).length,
+      battiti: medicalData.filter(d => d.battiti).length,
+      saturazione: medicalData.filter(d => d.saturazione).length,
+      glicemia: medicalData.filter(d => d.glicemia).length,
+      temperatura: medicalData.filter(d => d.temperatura).length
+    };
+
+    content += `
+      <div class="section">
+        <h2>📊 Riepilogo Generale</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h3>Totale Misurazioni</h3>
+            <p class="value">${totalMeasurements}</p>
+          </div>
+          <div class="stat-card">
+            <h3>Pressione Arteriosa</h3>
+            <p class="value">${measuredData.pressione}</p>
+          </div>
+          <div class="stat-card">
+            <h3>Frequenza Cardiaca</h3>
+            <p class="value">${measuredData.battiti}</p>
+          </div>
+          <div class="stat-card">
+            <h3>Saturazione O2</h3>
+            <p class="value">${measuredData.saturazione}</p>
+          </div>
+          <div class="stat-card">
+            <h3>Glicemia</h3>
+            <p class="value">${measuredData.glicemia}</p>
+          </div>
+          <div class="stat-card">
+            <h3>Temperatura</h3>
+            <p class="value">${measuredData.temperatura}</p>
+          </div>
+        </div>
+      </div>
+    `;
+
     if (printOptions.includeHistory) {
-      content += '<h2>Storico Misurazioni</h2><table><tr><th>Data</th><th>Ora</th><th>Pressione</th><th>Battiti</th><th>Saturazione</th><th>Glicemia</th><th>Temperatura</th><th>Note</th></tr>';
-      medicalData.forEach(entry => {
+      let dataToShow = medicalData;
+      if (printOptions.dateRange.start && printOptions.dateRange.end) {
+        dataToShow = medicalData.filter(entry => {
+          const entryDate = new Date(entry.date);
+          const start = new Date(printOptions.dateRange.start);
+          const end = new Date(printOptions.dateRange.end);
+          return entryDate >= start && entryDate <= end;
+        });
+      }
+
+      content += `
+        <div class="section">
+          <h2>📋 Storico Misurazioni (${dataToShow.length} record)</h2>
+          <table>
+            <tr>
+              <th>Data</th>
+              <th>Ora</th>
+              <th>Pressione</th>
+              <th>Battiti</th>
+              <th>Saturazione</th>
+              <th>Glicemia</th>
+              <th>Temperatura</th>
+              <th>Note</th>
+            </tr>
+      `;
+      
+      dataToShow.forEach(entry => {
         content += `<tr>
           <td>${new Date(entry.date).toLocaleDateString('it-IT')}</td>
           <td>${entry.time}</td>
           <td>${entry.pressione || '-'}</td>
-          <td>${entry.battiti || '-'}</td>
-          <td>${entry.saturazione || '-'}</td>
-          <td>${entry.glicemia || '-'}</td>
-          <td>${entry.temperatura || '-'}</td>
+          <td>${entry.battiti ? entry.battiti + ' bpm' : '-'}</td>
+          <td>${entry.saturazione ? entry.saturazione + '%' : '-'}</td>
+          <td>${entry.glicemia ? entry.glicemia + ' mg/dL' : '-'}</td>
+          <td>${entry.temperatura ? entry.temperatura + '°C' : '-'}</td>
           <td>${entry.sintomi || '-'}</td>
         </tr>`;
       });
-      content += '</table>';
+      content += '</table></div>';
+    }
+
+    // Medicine section
+    if (medicines.length > 0) {
+      content += `
+        <div class="section">
+          <h2>💊 Terapie Farmacologiche (${medicines.length} farmaci)</h2>
+          <div class="medicine-list">
+      `;
+      medicines.forEach(medicine => {
+        content += `
+          <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #c6f6d5;">
+            <h4 style="margin: 0 0 5px 0; color: #2d3748;">${medicine.nome} - ${medicine.dosaggio}</h4>
+            <p style="margin: 2px 0;"><strong>Orario:</strong> ${medicine.ora}</p>
+            <p style="margin: 2px 0;"><strong>Frequenza:</strong> ${medicine.frequenza}</p>
+            ${medicine.note ? `<p style="margin: 2px 0; font-style: italic;"><strong>Note:</strong> ${medicine.note}</p>` : ''}
+          </div>
+        `;
+      });
+      content += '</div></div>';
     }
 
     if (printOptions.includeCharts) {
-      content += '<h2>Grafici</h2><p>I grafici sono disponibili nella versione digitale dell\'app.</p>';
+      content += `
+        <div class="section">
+          <h2>📈 Grafici e Andamenti</h2>
+          <p style="color: #666; font-style: italic; padding: 20px; background: #f7fafc; border-radius: 8px;">
+            I grafici dettagliati sono disponibili nella versione digitale dell'applicazione MediConnect.<br>
+            Per visualizzare i trend completi, accedi alla sezione "Grafici" nell'app.
+          </p>
+          
+          <div style="margin-top: 20px;">
+            <h3>Grafici selezionati per la stampa:</h3>
+            <ul>
+              ${printOptions.chartTypes.pressione ? '<li>📈 Andamento Pressione Arteriosa</li>' : ''}
+              ${printOptions.chartTypes.battiti ? '<li>💗 Andamento Frequenza Cardiaca</li>' : ''}
+              ${printOptions.chartTypes.saturazione ? '<li>🫁 Andamento Saturazione Ossigeno</li>' : ''}
+              ${printOptions.chartTypes.glicemia ? '<li>🩸 Andamento Glicemia</li>' : ''}
+              ${printOptions.chartTypes.temperatura ? '<li>🌡️ Andamento Temperatura</li>' : ''}
+            </ul>
+          </div>
+        </div>
+      `;
     }
 
-    content += '</body></html>';
+    content += `
+        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #e2e8f0; color: #666;">
+          <p><strong>MediConnect</strong> - Piattaforma di Monitoraggio Sanitario</p>
+          <p>Report generato automaticamente - Non modificare questo documento</p>
+        </div>
+      </body></html>
+    `;
     
     printWindow.document.write(content);
     printWindow.document.close();
+    printWindow.focus();
     printWindow.print();
     setShowPrintModal(false);
   };
@@ -483,7 +781,8 @@ const MedicalApp = () => {
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
-      gap: '5px'
+      gap: '5px',
+      transition: 'all 0.2s'
     },
     activeTab: {
       backgroundColor: '#4299e1',
@@ -505,13 +804,15 @@ const MedicalApp = () => {
       fontSize: '14px',
       fontWeight: '600',
       marginBottom: '5px',
-      gap: '5px'
+      gap: '5px',
+      color: '#2d3748'
     },
     input: {
       padding: '10px',
       border: '1px solid #e2e8f0',
       borderRadius: '8px',
-      fontSize: '14px'
+      fontSize: '14px',
+      transition: 'border-color 0.2s'
     },
     textarea: {
       padding: '10px',
@@ -519,7 +820,8 @@ const MedicalApp = () => {
       borderRadius: '8px',
       minHeight: '80px',
       fontSize: '14px',
-      fontFamily: 'Arial, sans-serif'
+      fontFamily: 'Arial, sans-serif',
+      resize: 'vertical'
     },
     select: {
       padding: '10px',
@@ -538,7 +840,8 @@ const MedicalApp = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: '8px'
+      gap: '8px',
+      transition: 'background-color 0.2s'
     },
     buttonSuccess: {
       backgroundColor: '#48bb78',
@@ -550,7 +853,8 @@ const MedicalApp = () => {
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
-      gap: '5px'
+      gap: '5px',
+      transition: 'background-color 0.2s'
     },
     buttonDanger: {
       backgroundColor: '#e53e3e',
@@ -559,7 +863,8 @@ const MedicalApp = () => {
       borderRadius: '6px',
       padding: '6px 10px',
       fontSize: '12px',
-      cursor: 'pointer'
+      cursor: 'pointer',
+      transition: 'background-color 0.2s'
     },
     buttonSecondary: {
       backgroundColor: '#a0aec0',
@@ -568,7 +873,8 @@ const MedicalApp = () => {
       borderRadius: '6px',
       padding: '6px 10px',
       fontSize: '12px',
-      cursor: 'pointer'
+      cursor: 'pointer',
+      transition: 'background-color 0.2s'
     },
     modal: {
       position: 'fixed',
@@ -590,7 +896,8 @@ const MedicalApp = () => {
       width: '100%',
       maxWidth: '500px',
       maxHeight: '80vh',
-      overflow: 'auto'
+      overflow: 'auto',
+      boxShadow: '0 10px 25px rgba(0,0,0,0.2)'
     },
     dataCard: {
       backgroundColor: 'white',
@@ -598,7 +905,8 @@ const MedicalApp = () => {
       borderRadius: '10px',
       padding: '15px',
       marginBottom: '10px',
-      position: 'relative'
+      position: 'relative',
+      transition: 'box-shadow 0.2s'
     },
     actionButtons: {
       position: 'absolute',
@@ -611,6 +919,9 @@ const MedicalApp = () => {
       textAlign: 'center',
       padding: '40px',
       color: '#718096'
+    },
+    checkbox: {
+      margin: '0 8px 0 0'
     }
   };
 
@@ -621,7 +932,7 @@ const MedicalApp = () => {
         {/* Header */}
         <div style={styles.card}>
           <h1 style={styles.title}>🏥 MediConnect</h1>
-          <p style={styles.subtitle}>Monitora la tua salute con semplicità</p>
+          <p style={styles.subtitle}>Monitora la tua salute con semplicità e condividi i dati in sicurezza</p>
           
           <div style={styles.tabContainer}>
             {[
@@ -649,13 +960,13 @@ const MedicalApp = () => {
         {/* Insert Tab */}
         {activeTab === 'insert' && (
           <div style={styles.card}>
-            <h2>{editingId ? 'Modifica Misurazione' : 'Inserisci Dati'}</h2>
+            <h2>{editingId ? 'Modifica Misurazione' : 'Inserisci Nuova Misurazione'}</h2>
             
             <div style={styles.formGrid}>
               <div style={styles.inputGroup}>
                 <label style={styles.label}>
                   <Calendar size={16} />
-                  Data
+                  Data *
                 </label>
                 <input
                   type="date"
@@ -668,7 +979,7 @@ const MedicalApp = () => {
               <div style={styles.inputGroup}>
                 <label style={styles.label}>
                   <Clock size={16} />
-                  Ora
+                  Ora *
                 </label>
                 <input
                   type="time"
@@ -681,7 +992,7 @@ const MedicalApp = () => {
               <div style={styles.inputGroup}>
                 <label style={styles.label}>
                   <Heart size={16} />
-                  Pressione
+                  Pressione Arteriosa
                 </label>
                 <input
                   type="text"
@@ -695,11 +1006,13 @@ const MedicalApp = () => {
               <div style={styles.inputGroup}>
                 <label style={styles.label}>
                   <Activity size={16} />
-                  Battiti (bpm)
+                  Frequenza Cardiaca (bpm)
                 </label>
                 <input
                   type="number"
                   placeholder="es. 72"
+                  min="30"
+                  max="200"
                   value={formData.battiti}
                   onChange={(e) => handleInputChange('battiti', e.target.value)}
                   style={styles.input}
@@ -714,7 +1027,7 @@ const MedicalApp = () => {
                 <input
                   type="number"
                   placeholder="es. 98"
-                  min="0"
+                  min="80"
                   max="100"
                   value={formData.saturazione}
                   onChange={(e) => handleInputChange('saturazione', e.target.value)}
@@ -730,6 +1043,8 @@ const MedicalApp = () => {
                 <input
                   type="number"
                   placeholder="es. 95"
+                  min="50"
+                  max="500"
                   value={formData.glicemia}
                   onChange={(e) => handleInputChange('glicemia', e.target.value)}
                   style={styles.input}
@@ -745,6 +1060,8 @@ const MedicalApp = () => {
                   type="number"
                   step="0.1"
                   placeholder="es. 36.5"
+                  min="35.0"
+                  max="42.0"
                   value={formData.temperatura}
                   onChange={(e) => handleInputChange('temperatura', e.target.value)}
                   style={styles.input}
@@ -757,7 +1074,7 @@ const MedicalApp = () => {
                   Sintomi e Note
                 </label>
                 <textarea
-                  placeholder="Descrivi eventuali sintomi..."
+                  placeholder="Descrivi eventuali sintomi, condizioni particolari o note aggiuntive..."
                   value={formData.sintomi}
                   onChange={(e) => handleInputChange('sintomi', e.target.value)}
                   style={styles.textarea}
@@ -767,7 +1084,7 @@ const MedicalApp = () => {
 
             <button onClick={handleSubmit} style={styles.button}>
               <Send size={16} />
-              {editingId ? 'Aggiorna' : 'Salva'}
+              {editingId ? 'Aggiorna Misurazione' : 'Salva Misurazione'}
             </button>
           </div>
         )}
@@ -775,13 +1092,13 @@ const MedicalApp = () => {
         {/* Medicines Tab */}
         {activeTab === 'medicines' && (
           <div style={styles.card}>
-            <h2>{editingMedicine ? 'Modifica Medicina' : 'Aggiungi Medicina'}</h2>
+            <h2>{editingMedicine ? 'Modifica Medicina' : 'Aggiungi Nuova Medicina'}</h2>
             
             <div style={styles.formGrid}>
               <div style={styles.inputGroup}>
                 <label style={styles.label}>
                   <Pill size={16} />
-                  Nome *
+                  Nome Farmaco *
                 </label>
                 <input
                   type="text"
@@ -809,7 +1126,7 @@ const MedicalApp = () => {
               <div style={styles.inputGroup}>
                 <label style={styles.label}>
                   <Clock size={16} />
-                  Orario *
+                  Orario di Assunzione *
                 </label>
                 <input
                   type="time"
@@ -839,10 +1156,10 @@ const MedicalApp = () => {
               <div style={{...styles.inputGroup, gridColumn: '1 / -1'}}>
                 <label style={styles.label}>
                   <Activity size={16} />
-                  Note
+                  Note e Istruzioni
                 </label>
                 <textarea
-                  placeholder="es. A stomaco pieno..."
+                  placeholder="es. A stomaco pieno, evitare alcol, effetti collaterali noti..."
                   value={medicineData.note}
                   onChange={(e) => handleMedicineChange('note', e.target.value)}
                   style={styles.textarea}
@@ -852,15 +1169,16 @@ const MedicalApp = () => {
 
             <button onClick={handleMedicineSubmit} style={styles.buttonSuccess}>
               <Plus size={16} />
-              {editingMedicine ? 'Aggiorna' : 'Aggiungi'}
+              {editingMedicine ? 'Aggiorna Medicina' : 'Aggiungi Medicina'}
             </button>
 
-            <div style={{marginTop: '20px'}}>
-              <h3>Medicine ({medicines.length})</h3>
+            <div style={{marginTop: '30px'}}>
+              <h3>Le Tue Medicine ({medicines.length})</h3>
               {medicines.length === 0 ? (
                 <div style={styles.emptyState}>
                   <Pill size={48} />
                   <p>Nessuna medicina registrata</p>
+                  <p style={{fontSize: '14px', color: '#a0aec0'}}>Aggiungi i tuoi farmaci per tenere traccia delle terapie</p>
                 </div>
               ) : (
                 medicines.map(medicine => (
@@ -869,19 +1187,21 @@ const MedicalApp = () => {
                       <button
                         onClick={() => editMedicine(medicine.id)}
                         style={styles.buttonSecondary}
+                        title="Modifica"
                       >
                         <Edit2 size={12} />
                       </button>
                       <button
                         onClick={() => deleteMedicine(medicine.id)}
                         style={styles.buttonDanger}
+                        title="Elimina"
                       >
                         <Trash2 size={12} />
                       </button>
                     </div>
-                    <h4>{medicine.nome} - {medicine.dosaggio}</h4>
-                    <p>Orario: {medicine.ora} | Frequenza: {medicine.frequenza}</p>
-                    {medicine.note && <p><em>{medicine.note}</em></p>}
+                    <h4 style={{margin: '0 0 10px 0', color: '#2d3748'}}>{medicine.nome} - {medicine.dosaggio}</h4>
+                    <p style={{margin: '5px 0', color: '#4a5568'}}><strong>Orario:</strong> {medicine.ora} | <strong>Frequenza:</strong> {medicine.frequenza}</p>
+                    {medicine.note && <p style={{margin: '5px 0', fontStyle: 'italic', color: '#666', backgroundColor: '#f7fafc', padding: '8px', borderRadius: '4px'}}><strong>Note:</strong> {medicine.note}</p>}
                   </div>
                 ))
               )}
@@ -892,24 +1212,26 @@ const MedicalApp = () => {
         {/* History Tab */}
         {activeTab === 'history' && (
           <div style={styles.card}>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
-              <h2>Storico ({filteredMedicalData.length}/{medicalData.length})</h2>
-              <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
-                <Filter size={16} />
-                <input
-                  type="date"
-                  value={filterDate}
-                  onChange={(e) => setFilterDate(e.target.value)}
-                  style={styles.input}
-                />
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px'}}>
+              <h2>Storico Misurazioni ({filteredMedicalData.length}/{medicalData.length})</h2>
+              <div style={{display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap'}}>
+                <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                  <Filter size={16} />
+                  <input
+                    type="date"
+                    value={filterDate}
+                    onChange={(e) => setFilterDate(e.target.value)}
+                    style={styles.input}
+                  />
+                </div>
                 {filterDate && (
                   <button onClick={() => setFilterDate('')} style={styles.buttonDanger}>
-                    Reset
+                    Reset Filtro
                   </button>
                 )}
                 <button onClick={() => setShowPrintModal(true)} style={styles.button}>
                   <Printer size={16} />
-                  Stampa
+                  Stampa Report
                 </button>
               </div>
             </div>
@@ -917,35 +1239,72 @@ const MedicalApp = () => {
             {filteredMedicalData.length === 0 ? (
               <div style={styles.emptyState}>
                 <Activity size={48} />
-                <p>{filterDate ? 'Nessun dato per questa data' : 'Inizia il monitoraggio'}</p>
+                <p>{filterDate ? 'Nessuna misurazione per la data selezionata' : 'Inizia il monitoraggio della tua salute'}</p>
+                <p style={{fontSize: '14px', color: '#a0aec0'}}>Le tue misurazioni appariranno qui</p>
               </div>
             ) : (
               filteredMedicalData.map(entry => (
-                <div key={entry.id} style={styles.dataCard}>
+                <div key={entry.id} style={{...styles.dataCard, ':hover': {boxShadow: '0 2px 8px rgba(0,0,0,0.1)'}}}>
                   <div style={styles.actionButtons}>
-                    <button onClick={() => editData(entry.id)} style={styles.buttonSecondary}>
+                    <button 
+                      onClick={() => editData(entry.id)} 
+                      style={styles.buttonSecondary}
+                      title="Modifica"
+                    >
                       <Edit2 size={12} />
                     </button>
-                    <button onClick={() => deleteData(entry.id)} style={styles.buttonDanger}>
+                    <button 
+                      onClick={() => deleteData(entry.id)} 
+                      style={styles.buttonDanger}
+                      title="Elimina"
+                    >
                       <Trash2 size={12} />
                     </button>
                   </div>
                   
-                  <div style={{marginBottom: '10px'}}>
-                    <strong>{new Date(entry.date).toLocaleDateString('it-IT')} - {entry.time}</strong>
+                  <div style={{marginBottom: '12px'}}>
+                    <strong style={{fontSize: '16px', color: '#2d3748'}}>
+                      {new Date(entry.date).toLocaleDateString('it-IT', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                      })} - {entry.time}
+                    </strong>
                   </div>
                   
-                  <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '10px'}}>
-                    {entry.pressione && <div><strong>Pressione:</strong> {entry.pressione}</div>}
-                    {entry.battiti && <div><strong>Battiti:</strong> {entry.battiti} bpm</div>}
-                    {entry.saturazione && <div><strong>Saturazione:</strong> {entry.saturazione}%</div>}
-                    {entry.glicemia && <div><strong>Glicemia:</strong> {entry.glicemia} mg/dL</div>}
-                    {entry.temperatura && <div><strong>Temperatura:</strong> {entry.temperatura}°C</div>}
+                  <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginBottom: '10px'}}>
+                    {entry.pressione && (
+                      <div style={{padding: '8px', backgroundColor: '#fef5e7', borderRadius: '6px', border: '1px solid #f6ad55'}}>
+                        <strong style={{color: '#c05621'}}>📈 Pressione:</strong><br/>{entry.pressione}
+                      </div>
+                    )}
+                    {entry.battiti && (
+                      <div style={{padding: '8px', backgroundColor: '#fed7d7', borderRadius: '6px', border: '1px solid #fc8181'}}>
+                        <strong style={{color: '#c53030'}}>💗 Battiti:</strong><br/>{entry.battiti} bpm
+                      </div>
+                    )}
+                    {entry.saturazione && (
+                      <div style={{padding: '8px', backgroundColor: '#e6fffa', borderRadius: '6px', border: '1px solid #4fd1c7'}}>
+                        <strong style={{color: '#234e52'}}>🫁 Saturazione:</strong><br/>{entry.saturazione}%
+                      </div>
+                    )}
+                    {entry.glicemia && (
+                      <div style={{padding: '8px', backgroundColor: '#edf2f7', borderRadius: '6px', border: '1px solid #a0aec0'}}>
+                        <strong style={{color: '#2d3748'}}>🩸 Glicemia:</strong><br/>{entry.glicemia} mg/dL
+                      </div>
+                    )}
+                    {entry.temperatura && (
+                      <div style={{padding: '8px', backgroundColor: '#fef5e7', borderRadius: '6px', border: '1px solid #f6ad55'}}>
+                        <strong style={{color: '#c05621'}}>🌡️ Temperatura:</strong><br/>{entry.temperatura}°C
+                      </div>
+                    )}
                   </div>
                   
                   {entry.sintomi && (
-                    <div style={{marginTop: '10px', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '5px'}}>
-                      <strong>Note:</strong> {entry.sintomi}
+                    <div style={{marginTop: '12px', padding: '12px', backgroundColor: '#f0fff4', borderRadius: '6px', border: '1px solid #9ae6b4'}}>
+                      <strong style={{color: '#276749'}}>📝 Note e Sintomi:</strong><br/>
+                      <span style={{color: '#2d3748'}}>{entry.sintomi}</span>
                     </div>
                   )}
                 </div>
@@ -957,7 +1316,7 @@ const MedicalApp = () => {
         {/* Charts Tab */}
         {activeTab === 'charts' && (
           <div style={styles.card}>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px'}}>
               <h2>Grafici e Andamenti</h2>
               <button onClick={() => setShowPrintModal(true)} style={styles.button}>
                 <Printer size={16} />
@@ -967,18 +1326,18 @@ const MedicalApp = () => {
             
             <div style={{display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap'}}>
               {[
-                {id: 'pressione', icon: Heart, label: 'Pressione'},
-                {id: 'battiti', icon: Activity, label: 'Battiti'},
-                {id: 'saturazione', icon: Droplet, label: 'Saturazione'},
-                {id: 'glicemia', icon: Droplet, label: 'Glicemia'},
-                {id: 'temperatura', icon: Thermometer, label: 'Temperatura'}
+                {id: 'pressione', icon: Heart, label: 'Pressione Arteriosa', color: '#e53e3e'},
+                {id: 'battiti', icon: Activity, label: 'Frequenza Cardiaca', color: '#d53f8c'},
+                {id: 'saturazione', icon: Droplet, label: 'Saturazione O2', color: '#0bc5ea'},
+                {id: 'glicemia', icon: Droplet, label: 'Glicemia', color: '#3182ce'},
+                {id: 'temperatura', icon: Thermometer, label: 'Temperatura', color: '#dd6b20'}
               ].map(chart => (
                 <button
                   key={chart.id}
                   onClick={() => setChartType(chart.id)}
                   style={{
                     ...styles.tab,
-                    ...(chartType === chart.id ? styles.activeTab : {})
+                    ...(chartType === chart.id ? {...styles.activeTab, backgroundColor: chart.color} : {})
                   }}
                 >
                   <chart.icon size={16} />
@@ -990,84 +1349,136 @@ const MedicalApp = () => {
             {chartData.length === 0 ? (
               <div style={styles.emptyState}>
                 <BarChart3 size={48} />
-                <p>Aggiungi dati per visualizzare i grafici</p>
+                <p>Aggiungi almeno 2 misurazioni per visualizzare i grafici</p>
+                <p style={{fontSize: '14px', color: '#a0aec0'}}>I grafici ti aiutano a monitorare l'andamento nel tempo</p>
               </div>
             ) : (
-              <div style={{height: '400px', width: '100%'}}>
+              <div style={{height: '400px', width: '100%', backgroundColor: '#f8f9fa', borderRadius: '10px', padding: '15px'}}>
                 <ResponsiveContainer width="100%" height="100%">
                   {chartType === 'pressione' ? (
                     <RechartsLineChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis dataKey="date" stroke="#4a5568" />
+                      <YAxis stroke="#4a5568" />
+                      <Tooltip 
+                        contentStyle={{
+                          backgroundColor: 'white',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                        }}
+                      />
                       <Line 
                         type="monotone" 
                         dataKey="pressione_sys" 
                         stroke="#e53e3e" 
-                        name="Sistolica"
+                        strokeWidth={3}
+                        name="Sistolica (mmHg)"
                         connectNulls={false}
+                        dot={{fill: '#e53e3e', strokeWidth: 2, r: 4}}
                       />
                       <Line 
                         type="monotone" 
                         dataKey="pressione_dia" 
                         stroke="#3182ce" 
-                        name="Diastolica"
+                        strokeWidth={3}
+                        name="Diastolica (mmHg)"
                         connectNulls={false}
+                        dot={{fill: '#3182ce', strokeWidth: 2, r: 4}}
                       />
                     </RechartsLineChart>
                   ) : chartType === 'battiti' ? (
                     <RechartsLineChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis dataKey="date" stroke="#4a5568" />
+                      <YAxis stroke="#4a5568" />
+                      <Tooltip 
+                        contentStyle={{
+                          backgroundColor: 'white',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                        }}
+                      />
                       <Line 
                         type="monotone" 
                         dataKey="battiti" 
-                        stroke="#e53e3e" 
-                        name="Battiti (bpm)"
+                        stroke="#d53f8c" 
+                        strokeWidth={3}
+                        name="Frequenza Cardiaca (bpm)"
                         connectNulls={false}
+                        dot={{fill: '#d53f8c', strokeWidth: 2, r: 4}}
                       />
                     </RechartsLineChart>
                   ) : chartType === 'saturazione' ? (
                     <RechartsLineChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis domain={[90, 100]} />
-                      <Tooltip />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis dataKey="date" stroke="#4a5568" />
+                      <YAxis domain={[90, 100]} stroke="#4a5568" />
+                      <Tooltip 
+                        contentStyle={{
+                          backgroundColor: 'white',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                        }}
+                      />
                       <Line 
                         type="monotone" 
                         dataKey="saturazione" 
-                        stroke="#e53e3e" 
+                        stroke="#0bc5ea" 
+                        strokeWidth={3}
                         name="Saturazione O2 (%)"
                         connectNulls={false}
+                        dot={{fill: '#0bc5ea', strokeWidth: 2, r: 4}}
                       />
                     </RechartsLineChart>
                   ) : chartType === 'glicemia' ? (
                     <RechartsBarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="glicemia" fill="#3182ce" name="Glicemia (mg/dL)" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis dataKey="date" stroke="#4a5568" />
+                      <YAxis stroke="#4a5568" />
+                      <Tooltip 
+                        contentStyle={{
+                          backgroundColor: 'white',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                        }}
+                      />
+                      <Bar dataKey="glicemia" fill="#3182ce" name="Glicemia (mg/dL)" radius={[4, 4, 0, 0]} />
                     </RechartsBarChart>
                   ) : (
                     <RechartsLineChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis domain={[35, 40]} />
-                      <Tooltip />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis dataKey="date" stroke="#4a5568" />
+                      <YAxis domain={[35, 40]} stroke="#4a5568" />
+                      <Tooltip 
+                        contentStyle={{
+                          backgroundColor: 'white',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                        }}
+                      />
                       <Line 
                         type="monotone" 
                         dataKey="temperatura" 
                         stroke="#dd6b20" 
+                        strokeWidth={3}
                         name="Temperatura (°C)"
                         connectNulls={false}
+                        dot={{fill: '#dd6b20', strokeWidth: 2, r: 4}}
                       />
                     </RechartsLineChart>
                   )}
                 </ResponsiveContainer>
+              </div>
+            )}
+            
+            {chartData.length > 0 && (
+              <div style={{marginTop: '20px', fontSize: '14px', color: '#4a5568', textAlign: 'center'}}>
+                Mostrando gli ultimi 10 valori registrati
               </div>
             )}
           </div>
@@ -1076,16 +1487,16 @@ const MedicalApp = () => {
         {/* Share Tab */}
         {activeTab === 'share' && (
           <div style={styles.card}>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px'}}>
               <h2>Gestione Condivisioni</h2>
-              <div style={{display: 'flex', gap: '10px'}}>
+              <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap'}}>
                 <button onClick={() => setShowInviteModal(true)} style={styles.buttonSuccess}>
                   <UserPlus size={16} />
-                  Invita
+                  Invita Persona
                 </button>
                 <button onClick={() => setShowShareModal(true)} style={styles.button}>
                   <Share2 size={16} />
-                  Condividi
+                  Condividi Dati
                 </button>
               </div>
             </div>
@@ -1094,17 +1505,49 @@ const MedicalApp = () => {
               <div style={styles.emptyState}>
                 <Users size={48} />
                 <p>Nessuna condivisione attiva</p>
+                <p style={{fontSize: '14px', color: '#a0aec0'}}>Invita medici o familiari per condividere i tuoi dati</p>
               </div>
             ) : (
-              sharedWith.map((share, index) => (
-                <div key={index} style={styles.dataCard}>
-                  <h4>{share.nome || share.email.split('@')[0]} ({share.ruolo})</h4>
-                  <p>Email: {share.email}</p>
-                  <p>Status: {share.status}</p>
-                  <p>Data: {share.invitedDate || share.sharedDate}</p>
-                  {share.dataCount && <p>Dati condivisi: {share.dataCount} misurazioni</p>}
-                </div>
-              ))
+              <div>
+                <h3 style={{marginBottom: '15px', color: '#2d3748'}}>Persone con Accesso ({sharedWith.length})</h3>
+                {sharedWith.map((share, index) => (
+                  <div key={index} style={styles.dataCard}>
+                    <h4 style={{margin: '0 0 8px 0', color: '#2d3748'}}>
+                      {share.nome || share.email.split('@')[0]} 
+                      <span style={{
+                        backgroundColor: share.ruolo === 'medico' ? '#e6fffa' : '#f0fff4',
+                        color: share.ruolo === 'medico' ? '#234e52' : '#276749',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        fontSize: '12px',
+                        marginLeft: '10px'
+                      }}>
+                        {share.ruolo}
+                      </span>
+                    </h4>
+                    <p style={{margin: '4px 0', color: '#4a5568'}}>📧 {share.email}</p>
+                    <p style={{margin: '4px 0', color: '#4a5568'}}>
+                      <strong>Status:</strong> 
+                      <span style={{
+                        color: share.status === 'Dati condivisi' ? '#38a169' : '#3182ce',
+                        fontWeight: 'bold',
+                        marginLeft: '5px'
+                      }}>
+                        {share.status}
+                      </span>
+                    </p>
+                    <p style={{margin: '4px 0', color: '#718096', fontSize: '14px'}}>
+                      {share.invitedDate ? `Invitato: ${share.invitedDate}` : ''}
+                      {share.sharedDate ? `Ultima condivisione: ${share.sharedDate}` : ''}
+                    </p>
+                    {share.dataCount && (
+                      <p style={{margin: '4px 0', color: '#4a5568', fontSize: '14px'}}>
+                        📊 Dati condivisi: {share.dataCount} misurazioni
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         )}
@@ -1113,12 +1556,12 @@ const MedicalApp = () => {
         {showInviteModal && (
           <div style={styles.modal}>
             <div style={styles.modalContent}>
-              <h3>Invita una Persona</h3>
+              <h3 style={{margin: '0 0 20px 0', color: '#2d3748'}}>Invita una Nuova Persona</h3>
               
               <div style={styles.inputGroup}>
                 <label style={styles.label}>
                   <Mail size={16} />
-                  Email *
+                  Indirizzo Email *
                 </label>
                 <input
                   type="email"
@@ -1132,7 +1575,7 @@ const MedicalApp = () => {
               <div style={styles.inputGroup}>
                 <label style={styles.label}>
                   <Users size={16} />
-                  Nome *
+                  Nome Completo *
                 </label>
                 <input
                   type="text"
@@ -1144,20 +1587,20 @@ const MedicalApp = () => {
               </div>
 
               <div style={styles.inputGroup}>
-                <label style={styles.label}>Ruolo</label>
+                <label style={styles.label}>👨‍⚕️ Ruolo</label>
                 <select
                   value={shareData.ruolo}
                   onChange={(e) => setShareData(prev => ({ ...prev, ruolo: e.target.value }))}
                   style={styles.select}
                 >
-                  <option value="medico">Medico</option>
+                  <option value="medico">Medico Curante</option>
                   <option value="familiare">Familiare</option>
                   <option value="caregiver">Caregiver</option>
                   <option value="altro">Altro</option>
                 </select>
               </div>
 
-              <div style={{display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px'}}>
+              <div style={{display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '25px'}}>
                 <button onClick={() => setShowInviteModal(false)} style={styles.buttonSecondary}>
                   Annulla
                 </button>
@@ -1173,22 +1616,22 @@ const MedicalApp = () => {
         {showShareModal && (
           <div style={styles.modal}>
             <div style={styles.modalContent}>
-              <h3>Condividi Dati</h3>
+              <h3 style={{margin: '0 0 20px 0', color: '#2d3748'}}>Condividi Dati Medici</h3>
               
               <div style={styles.inputGroup}>
-                <label style={styles.label}>Email destinatario</label>
+                <label style={styles.label}>📧 Email destinatario *</label>
                 <input
                   type="email"
-                  placeholder="Inserisci email"
+                  placeholder="Inserisci l'email del destinatario"
                   value={shareData.email}
                   onChange={(e) => setShareData(prev => ({ ...prev, email: e.target.value }))}
                   style={styles.input}
                 />
               </div>
 
-              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '15px'}}>
                 <div style={styles.inputGroup}>
-                  <label style={styles.label}>Data inizio</label>
+                  <label style={styles.label}>📅 Data inizio (opzionale)</label>
                   <input
                     type="date"
                     value={shareData.startDate}
@@ -1197,7 +1640,7 @@ const MedicalApp = () => {
                   />
                 </div>
                 <div style={styles.inputGroup}>
-                  <label style={styles.label}>Data fine</label>
+                  <label style={styles.label}>📅 Data fine (opzionale)</label>
                   <input
                     type="date"
                     value={shareData.endDate}
@@ -1207,13 +1650,39 @@ const MedicalApp = () => {
                 </div>
               </div>
 
-              <div style={{display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px'}}>
+              <div style={{backgroundColor: '#f7fafc', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
+                <h4 style={{margin: '0 0 10px 0', color: '#2d3748'}}>Dati da includere:</h4>
+                <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px'}}>
+                  {Object.entries(shareData.includeData).map(([key, value]) => (
+                    <label key={key} style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px'}}>
+                      <input
+                        type="checkbox"
+                        checked={value}
+                        onChange={(e) => setShareData(prev => ({
+                          ...prev,
+                          includeData: { ...prev.includeData, [key]: e.target.checked }
+                        }))}
+                        style={styles.checkbox}
+                      />
+                      {key === 'pressione' && '📈 Pressione'}
+                      {key === 'battiti' && '💗 Battiti'}
+                      {key === 'saturazione' && '🫁 Saturazione'}
+                      {key === 'glicemia' && '🩸 Glicemia'}
+                      {key === 'temperatura' && '🌡️ Temperatura'}
+                      {key === 'sintomi' && '📝 Note/Sintomi'}
+                      {key === 'medicine' && '💊 Medicine'}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{display: 'flex', gap: '10px', justifyContent: 'flex-end'}}>
                 <button onClick={() => setShowShareModal(false)} style={styles.buttonSecondary}>
                   Annulla
                 </button>
                 <button onClick={handleShare} style={styles.buttonSuccess}>
                   <Send size={16} />
-                  Condividi
+                  Condividi Dati
                 </button>
               </div>
             </div>
@@ -1223,26 +1692,54 @@ const MedicalApp = () => {
         {showPrintModal && (
           <div style={styles.modal}>
             <div style={styles.modalContent}>
-              <h3>Opzioni di Stampa</h3>
+              <h3 style={{margin: '0 0 20px 0', color: '#2d3748'}}>Opzioni di Stampa Report</h3>
               
-              <div style={{marginBottom: '15px'}}>
-                <label style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px'}}>
+              <div style={{marginBottom: '20px'}}>
+                <h4 style={{marginBottom: '10px', color: '#2d3748'}}>Contenuti da includere:</h4>
+                <label style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px'}}>
                   <input
                     type="checkbox"
                     checked={printOptions.includeHistory}
                     onChange={(e) => setPrintOptions(prev => ({ ...prev, includeHistory: e.target.checked }))}
+                    style={styles.checkbox}
                   />
-                  Includi Storico Misurazioni
+                  📊 Storico Completo delle Misurazioni
                 </label>
                 
-                <label style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                <label style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px'}}>
                   <input
                     type="checkbox"
                     checked={printOptions.includeCharts}
                     onChange={(e) => setPrintOptions(prev => ({ ...prev, includeCharts: e.target.checked }))}
+                    style={styles.checkbox}
                   />
-                  Includi Grafici (solo riferimenti)
+                  📈 Riferimenti ai Grafici (solo descrizione)
                 </label>
+              </div>
+
+              <div style={{backgroundColor: '#f7fafc', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
+                <h4 style={{margin: '0 0 10px 0', color: '#2d3748'}}>Grafici selezionati per il riferimento:</h4>
+                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px'}}>
+                  {Object.entries(printOptions.chartTypes).map(([key, value]) => (
+                    <label key={key} style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px'}}>
+                      <input
+                        type="checkbox"
+                        checked={value}
+                        onChange={(e) => setPrintOptions(prev => ({
+                          ...prev,
+                          chartTypes: { ...prev.chartTypes, [key]: e.target.checked }
+                        }))}
+                        style={styles.checkbox}
+                        disabled={!printOptions.includeCharts}
+                      />
+                      {key === 'pressione' && '📈 Pressione'}
+                      {key === 'battiti' && '💗 Battiti'}
+                      {key === 'saturazione' && '🫁 Saturazione'}
+                      {key === 'glicemia' && '🩸 Glicemia'}
+                      {key === 'temperatura' && '🌡️ Temperatura'}
+                    </label>
+                  ))}
+                </div>
               </div>
 
               <div style={{display: 'flex', gap: '10px', justifyContent: 'flex-end'}}>
@@ -1251,7 +1748,7 @@ const MedicalApp = () => {
                 </button>
                 <button onClick={handlePrint} style={styles.button}>
                   <Printer size={16} />
-                  Stampa
+                  Genera e Stampa
                 </button>
               </div>
             </div>
