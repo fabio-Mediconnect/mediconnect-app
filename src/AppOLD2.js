@@ -73,7 +73,7 @@ const MedicalApp = () => {
     }
   });
 
-  // Initialize with sample data and handle URL parameters for direct access
+  // Initialize with sample data
   useEffect(() => {
     const sampleData = [
       {
@@ -132,78 +132,6 @@ const MedicalApp = () => {
 
     setMedicalData(sampleData);
     setMedicines(sampleMedicines);
-
-    // Gestione accesso diretto da email e risposte agli inviti
-    const urlParams = new URLSearchParams(window.location.search);
-    const patientToken = urlParams.get('patient');
-    const dataToken = urlParams.get('data');
-    const action = urlParams.get('action');
-    const isSharedView = urlParams.get('view') === 'shared';
-
-    if (patientToken && action === 'accept') {
-      // Invito ACCETTATO - mostra i dati del paziente
-      setActiveTab('history'); // Vai direttamente allo storico
-      showNotification('🎉 Invito accettato! Benvenuto in MediConnect.', 'success');
-      
-      // Simula l'aggiornamento dello status dell'invito
-      setTimeout(() => {
-        showNotification('✅ Accesso autorizzato confermato. Ora puoi visualizzare tutti i dati medici del paziente.', 'success');
-        
-        // Aggiorna lo status nella lista condivisioni (simulazione)
-        setSharedWith(prev => prev.map(share => 
-          share.accessToken === patientToken ? 
-            { ...share, status: 'Invito Accettato', accessDate: new Date().toLocaleString('it-IT') } : 
-            share
-        ));
-      }, 2000);
-
-      // Mostra messaggio di benvenuto personalizzato
-      setTimeout(() => {
-        showNotification('👨‍⚕️ Come medico autorizzato, hai accesso completo ai dati sanitari. Tutti i grafici e lo storico sono disponibili.', 'info');
-      }, 4000);
-      
-    } else if (patientToken && action === 'decline') {
-      // Invito RIFIUTATO
-      setActiveTab('share'); // Vai alla sezione condivisioni
-      showNotification('❌ Invito rifiutato. Il paziente è stato informato della tua decisione.', 'warning');
-      
-      // Simula l'aggiornamento dello status dell'invito
-      setTimeout(() => {
-        showNotification('📧 Notifica di rifiuto inviata al paziente. Grazie per aver risposto all\'invito.', 'info');
-        
-        // Aggiorna lo status nella lista condivisioni (simulazione)
-        setSharedWith(prev => prev.map(share => 
-          share.accessToken === patientToken ? 
-            { ...share, status: 'Invito Rifiutato', declineDate: new Date().toLocaleString('it-IT') } : 
-            share
-        ));
-      }, 2000);
-
-      // Offri possibilità di contattare il paziente
-      setTimeout(() => {
-        showNotification('💬 Se hai cambiato idea o hai domande, puoi contattare direttamente il paziente.', 'info');
-      }, 4000);
-
-    } else if (dataToken && isSharedView) {
-      // Accesso da condivisione dati - mostra direttamente i dati
-      setActiveTab('charts'); // Mostra prima i grafici per l'impatto visivo
-      showNotification('📊 Caricamento dati medici condivisi in corso...', 'info');
-      
-      setTimeout(() => {
-        showNotification('✅ Dati medici caricati con successo. Visualizzazione in modalità consultazione.', 'success');
-        setActiveTab('history'); // Poi passa allo storico per i dettagli
-      }, 1500);
-
-      setTimeout(() => {
-        showNotification('ℹ️ Stai visualizzando una condivisione di dati medici. Alcune funzioni potrebbero essere limitate.', 'info');
-      }, 3000);
-    }
-
-    // Pulizia URL per evitare problemi con i refresh
-    if (patientToken || dataToken) {
-      const cleanUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, cleanUrl);
-    }
   }, []);
 
   // Funzione per mostrare notifiche invece di alert()
@@ -396,156 +324,47 @@ const MedicalApp = () => {
     }
 
     try {
-      // Genera un token di accesso temporaneo per il paziente
-      const patientToken = btoa(`patient_${Date.now()}_${shareData.email}`).replace(/[^A-Za-z0-9]/g, '');
-      const acceptUrl = `${window.location.origin}?patient=${patientToken}&action=accept`;
-      const declineUrl = `${window.location.origin}?patient=${patientToken}&action=decline`;
-
       const emailHtml = `
-        <table cellpadding="0" cellspacing="0" border="0" width="100%">
-          <tr>
-            <td align="center" bgcolor="#f8f9fa">
-              <table cellpadding="0" cellspacing="0" border="0" width="500" bgcolor="#ffffff">
-                
-                <!-- Header -->
-                <tr>
-                  <td align="center" bgcolor="#4299e1" style="padding: 30px;">
-                    <h1 style="color: #ffffff; margin: 0; font-size: 24px;">MediConnect</h1>
-                    <p style="color: #ffffff; margin: 10px 0 0 0;">Invito Dati Medici</p>
-                  </td>
-                </tr>
-
-                <!-- Contenuto -->
-                <tr>
-                  <td style="padding: 30px;">
-                    <h2 style="color: #2d3748; text-align: center; margin: 0 0 20px 0;">
-                      Ciao ${shareData.nome}!
-                    </h2>
-                    
-                    <p style="font-size: 16px; color: #4a5568; text-align: center; margin-bottom: 30px;">
-                      Sei stato invitato ad accedere ai <strong>dati medici</strong> di un paziente tramite MediConnect.
-                    </p>
-
-                    <table cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#f7fafc" style="margin-bottom: 30px;">
-                      <tr>
-                        <td style="padding: 20px; text-align: center;">
-                          <p style="margin: 0; color: #2d3748;">
-                            <strong>Ruolo: ${shareData.ruolo.charAt(0).toUpperCase() + shareData.ruolo.slice(1)}</strong>
-                          </p>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-                <!-- PULSANTI -->
-                <tr>
-                  <td style="padding: 0 30px 30px 30px;">
-                    
-                    <!-- Pulsante ACCETTA -->
-                    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 15px;">
-                      <tr>
-                        <td align="center" bgcolor="#48bb78" style="border-radius: 30px;">
-                          <a href="${acceptUrl}" style="display: block; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 18px; padding: 20px 40px;">
-                            ACCETTA E ACCEDI AI DATI
-                          </a>
-                        </td>
-                      </tr>
-                    </table>
-
-                    <!-- Pulsante RIFIUTA -->
-                    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 20px;">
-                      <tr>
-                        <td align="center" bgcolor="#e53e3e" style="border-radius: 30px;">
-                          <a href="${declineUrl}" style="display: block; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 18px; padding: 20px 40px;">
-                            RIFIUTA INVITO
-                          </a>
-                        </td>
-                      </tr>
-                    </table>
-
-                  </td>
-                </tr>
-
-                <!-- Sezione Mobile -->
-                <tr>
-                  <td style="padding: 0 30px 30px 30px;">
-                    <table cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#e6fffa">
-                      <tr>
-                        <td style="padding: 20px;">
-                          <h3 style="color: #234e52; text-align: center; margin: 0 0 15px 0;">
-                            Per Smartphone
-                          </h3>
-                          
-                          <p style="color: #2c7a7b; text-align: center; margin: 0 0 20px 0;">
-                            <strong>Clicca "ACCETTA" per aprire l'app automaticamente</strong>
-                          </p>
-
-                          <p style="color: #234e52; text-align: center; margin: 0 0 15px 0;">
-                            <strong>Oppure installa l'app:</strong>
-                          </p>
-
-                          <table cellpadding="0" cellspacing="0" border="0" width="100%">
-                            <tr>
-                              <td align="center">
-                                <a href="https://apps.apple.com/app/mediconnect">App Store</a>
-                                |
-                                <a href="https://play.google.com/store/apps/details?id=com.mediconnect">Google Play</a>
-                              </td>
-                            </tr>
-                          </table>
-
-                          <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top: 20px;">
-                            <tr>
-                              <td align="center" bgcolor="#38b2ac" style="border-radius: 20px;">
-                                <a href="mediconnect://invite/${patientToken}" style="display: block; color: #ffffff; text-decoration: none; font-weight: bold; padding: 12px 20px;">
-                                  Apri App MediConnect
-                                </a>
-                              </td>
-                            </tr>
-                          </table>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-                <!-- Cosa Vedrai -->
-                <tr>
-                  <td style="padding: 0 30px 30px 30px;">
-                    <table cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#f0f4ff">
-                      <tr>
-                        <td style="padding: 20px;">
-                          <h4 style="color: #3730a3; text-align: center; margin: 0 0 15px 0;">
-                            Dati Disponibili:
-                          </h4>
-                          <ul style="color: #4338ca; margin: 0;">
-                            <li>Pressione arteriosa e battiti</li>
-                            <li>Glicemia e temperatura</li>
-                            <li>Saturazione ossigeno</li>
-                            <li>Medicine e terapie</li>
-                            <li>Grafici e storico completo</li>
-                          </ul>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-                <!-- Footer -->
-                <tr>
-                  <td align="center" bgcolor="#f7fafc" style="padding: 20px;">
-                    <p style="color: #718096; margin: 0; font-size: 14px;">
-                      <strong>MediConnect</strong> - Piattaforma Sanitaria<br>
-                      Supporto: help@mediconnect.app
-                    </p>
-                  </td>
-                </tr>
-
-              </table>
-            </td>
-          </tr>
-        </table>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #4299e1; margin: 0;">🏥 MediConnect</h1>
+            <h2 style="color: #2d3748; margin: 10px 0;">Invito alla Piattaforma</h2>
+          </div>
+          
+          <p style="font-size: 16px; color: #4a5568;">Ciao <strong>${shareData.nome}</strong>,</p>
+          
+          <p style="font-size: 16px; color: #4a5568; line-height: 1.6;">
+            Sei stato invitato a utilizzare <strong>MediConnect</strong>, una piattaforma per il monitoraggio 
+            e la condivisione dei dati sanitari.
+          </p>
+          
+          <div style="background: #f7fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #2d3748; margin-top: 0;">I tuoi dettagli:</h3>
+            <p style="margin: 5px 0;"><strong>Ruolo:</strong> ${shareData.ruolo}</p>
+            <p style="margin: 5px 0;"><strong>Email:</strong> ${shareData.email}</p>
+          </div>
+          
+          <div style="background: #e6fffa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #38b2ac;">
+            <h3 style="color: #2d3748; margin-top: 0;">Come iniziare:</h3>
+            <ol style="color: #4a5568; padding-left: 20px;">
+              <li>Scarica l'app MediConnect dal tuo app store</li>
+              <li>Registrati utilizzando questa email: <strong>${shareData.email}</strong></li>
+              <li>Inizia a monitorare e condividere i tuoi dati sanitari</li>
+            </ol>
+          </div>
+          
+          <p style="font-size: 16px; color: #4a5568; line-height: 1.6;">
+            Con MediConnect puoi registrare pressione arteriosa, glicemia, temperatura, 
+            saturazione e tenere traccia delle tue medicine.
+          </p>
+          
+          <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+            <p style="color: #718096; font-size: 14px;">
+              Questo invito è stato inviato tramite MediConnect<br>
+              Per assistenza, contatta il supporto tecnico.
+            </p>
+          </div>
+        </div>
       `;
 
       await sendEmail({
@@ -559,13 +378,10 @@ const MedicalApp = () => {
         nome: shareData.nome,
         ruolo: shareData.ruolo,
         invitedDate: new Date().toLocaleString('it-IT'),
-        status: 'In Attesa di Risposta',
-        accessToken: patientToken,
-        expiryDate: new Date(Date.now() + 7*24*60*60*1000).toLocaleDateString('it-IT')
+        status: 'Invitato'
       }]);
 
       setShowInviteModal(false);
-      showNotification(`Invito inviato a ${shareData.nome}. In attesa di accettazione.`, 'success');
       
     } catch (error) {
       showNotification(`Errore invio invito: ${error.message}`, 'error');
@@ -607,185 +423,62 @@ const MedicalApp = () => {
         temperatura: dataToShare.filter(d => d.temperatura).length
       };
 
-      // Genera token per accesso diretto ai dati
-      const dataToken = btoa(`data_${Date.now()}_${shareData.email}`).replace(/[^A-Za-z0-9]/g, '');
-      const dataUrl = `${window.location.origin}?data=${dataToken}&view=shared`;
-
       const emailHtml = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Dati Medici MediConnect</title>
-        </head>
-        <body style="margin: 0; padding: 20px; font-family: Arial, sans-serif; background-color: #f8f9fa;">
-          <div style="max-width: 700px; margin: 0 auto; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-            
-            <!-- Header -->
-            <div style="background: linear-gradient(135deg, #4299e1 0%, #667eea 100%); padding: 30px; text-align: center; color: white;">
-              <h1 style="margin: 0; font-size: 2.2em;">🏥 MediConnect</h1>
-              <p style="margin: 10px 0 0 0; font-size: 1.1em; opacity: 0.9;">Dati Medici Condivisi</p>
-            </div>
-
-            <!-- Content -->
-            <div style="padding: 30px;">
-              <h2 style="color: #2d3748; margin: 0 0 20px 0;">Nuovi Dati Medici Ricevuti</h2>
-              <p style="font-size: 16px; color: #4a5568; line-height: 1.6;">
-                Hai ricevuto nuovi dati medici tramite MediConnect.
-              </p>
-
-              <!-- Riepilogo Dati Tabella -->
-              <table style="width: 100%; border-collapse: collapse; margin: 25px 0; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
-                <thead>
-                  <tr style="background: linear-gradient(90deg, #4299e1, #667eea); color: white;">
-                    <th style="padding: 15px; text-align: left; font-weight: 600;">📊 Tipo di Misurazione</th>
-                    <th style="padding: 15px; text-align: center; font-weight: 600;">🔢 Numero Rilevazioni</th>
-                    <th style="padding: 15px; text-align: center; font-weight: 600;">📅 Periodo</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr style="background: #fef5e7;">
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; color: #2d3748; font-weight: 500;">📈 Pressione Arteriosa</td>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; text-align: center; color: #c05621; font-weight: bold;">${dataByType.pressione}</td>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; text-align: center; color: #4a5568; font-size: 14px;">${dataToShare.length > 0 ? 'Ultimi ' + Math.min(dataToShare.length, 30) + ' giorni' : 'N/D'}</td>
-                  </tr>
-                  <tr style="background: #fed7d7;">
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; color: #2d3748; font-weight: 500;">💗 Frequenza Cardiaca</td>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; text-align: center; color: #c53030; font-weight: bold;">${dataByType.battiti}</td>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; text-align: center; color: #4a5568; font-size: 14px;">${dataToShare.length > 0 ? 'Ultimi ' + Math.min(dataToShare.length, 30) + ' giorni' : 'N/D'}</td>
-                  </tr>
-                  <tr style="background: #e6fffa;">
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; color: #2d3748; font-weight: 500;">🫁 Saturazione Ossigeno</td>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; text-align: center; color: #234e52; font-weight: bold;">${dataByType.saturazione}</td>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; text-align: center; color: #4a5568; font-size: 14px;">${dataToShare.length > 0 ? 'Ultimi ' + Math.min(dataToShare.length, 30) + ' giorni' : 'N/D'}</td>
-                  </tr>
-                  <tr style="background: #edf2f7;">
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; color: #2d3748; font-weight: 500;">🩸 Glicemia</td>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; text-align: center; color: #2d3748; font-weight: bold;">${dataByType.glicemia}</td>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; text-align: center; color: #4a5568; font-size: 14px;">${dataToShare.length > 0 ? 'Ultimi ' + Math.min(dataToShare.length, 30) + ' giorni' : 'N/D'}</td>
-                  </tr>
-                  <tr style="background: #fef5e7;">
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; color: #2d3748; font-weight: 500;">🌡️ Temperatura</td>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; text-align: center; color: #c05621; font-weight: bold;">${dataByType.temperatura}</td>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; text-align: center; color: #4a5568; font-size: 14px;">${dataToShare.length > 0 ? 'Ultimi ' + Math.min(dataToShare.length, 30) + ' giorni' : 'N/D'}</td>
-                  </tr>
-                  <tr style="background: #f0fff4;">
-                    <td style="padding: 12px 15px; color: #2d3748; font-weight: 500;">💊 Terapie Farmacologiche</td>
-                    <td style="padding: 12px 15px; text-align: center; color: #276749; font-weight: bold;">${shareData.includeData.medicine ? medicines.length : 0}</td>
-                    <td style="padding: 12px 15px; text-align: center; color: #4a5568; font-size: 14px;">Attuali</td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <!-- Pulsante Accesso Dati -->
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${dataUrl}" style="display: inline-block; background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); 
-                   color: white; text-decoration: none; padding: 15px 30px; border-radius: 50px; 
-                   font-weight: 600; font-size: 16px; margin: 10px; box-shadow: 0 4px 15px rgba(66, 153, 225, 0.3);
-                   transition: all 0.3s ease;">
-                  📊 Visualizza Tutti i Dati
-                </a>
-              </div>
-
-              <!-- Periodo Dati -->
-              <div style="background: #fff5f5; border: 1px solid #fed7d7; border-radius: 8px; padding: 20px; margin: 25px 0;">
-                <h3 style="color: #c53030; margin: 0 0 15px 0;">📅 Periodo dei Dati</h3>
-                <table style="width: 100%; border-collapse: collapse;">
-                  <tr>
-                    <td style="padding: 8px 0; color: #4a5568; font-weight: 500;">📊 Totale Misurazioni:</td>
-                    <td style="padding: 8px 0; color: #2d3748; font-weight: bold; text-align: right;">${dataToShare.length}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 8px 0; color: #4a5568; font-weight: 500;">📆 Range Temporale:</td>
-                    <td style="padding: 8px 0; color: #2d3748; font-weight: bold; text-align: right;">
-                      ${shareData.startDate && shareData.endDate ? 
-                        `${new Date(shareData.startDate).toLocaleDateString('it-IT')} - ${new Date(shareData.endDate).toLocaleDateString('it-IT')}` : 
-                        'Tutti i dati disponibili'
-                      }
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 8px 0; color: #4a5568; font-weight: 500;">🕐 Ultima Sincronizzazione:</td>
-                    <td style="padding: 8px 0; color: #2d3748; font-weight: bold; text-align: right;">${new Date().toLocaleDateString('it-IT')} ${new Date().toLocaleTimeString('it-IT')}</td>
-                  </tr>
-                </table>
-              </div>
-
-              ${dataToShare.length > 0 ? `
-              <!-- Ultime Misurazioni Dettagliate -->
-              <div style="background: #f0fff4; border: 1px solid #9ae6b4; border-radius: 8px; padding: 20px; margin: 25px 0;">
-                <h3 style="color: #276749; margin: 0 0 20px 0;">📋 Ultime 3 Misurazioni Dettagliate</h3>
-                
-                ${dataToShare.slice(0, 3).map((entry, index) => `
-                  <div style="background: white; border-radius: 8px; padding: 15px; margin-bottom: ${index < 2 ? '15px' : '0'}; border: 1px solid #c6f6d5;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                      <strong style="color: #276749; font-size: 16px;">${new Date(entry.date).toLocaleDateString('it-IT')}</strong>
-                      <span style="color: #4a5568; font-size: 14px; background: #e6fffa; padding: 4px 8px; border-radius: 12px;">${entry.time}</span>
-                    </div>
-                    
-                    <table style="width: 100%; border-collapse: collapse;">
-                      ${entry.pressione ? `<tr><td style="padding: 4px 0; color: #4a5568;">📈 Pressione:</td><td style="padding: 4px 0; text-align: right; font-weight: bold; color: #c05621;">${entry.pressione} mmHg</td></tr>` : ''}
-                      ${entry.battiti ? `<tr><td style="padding: 4px 0; color: #4a5568;">💗 Battiti:</td><td style="padding: 4px 0; text-align: right; font-weight: bold; color: #c53030;">${entry.battiti} bpm</td></tr>` : ''}
-                      ${entry.saturazione ? `<tr><td style="padding: 4px 0; color: #4a5568;">🫁 Saturazione:</td><td style="padding: 4px 0; text-align: right; font-weight: bold; color: #234e52;">${entry.saturazione}%</td></tr>` : ''}
-                      ${entry.glicemia ? `<tr><td style="padding: 4px 0; color: #4a5568;">🩸 Glicemia:</td><td style="padding: 4px 0; text-align: right; font-weight: bold; color: #2d3748;">${entry.glicemia} mg/dL</td></tr>` : ''}
-                      ${entry.temperatura ? `<tr><td style="padding: 4px 0; color: #4a5568;">🌡️ Temperatura:</td><td style="padding: 4px 0; text-align: right; font-weight: bold; color: #c05621;">${entry.temperatura}°C</td></tr>` : ''}
-                    </table>
-                    
-                    ${entry.sintomi ? `<div style="margin-top: 10px; padding: 8px; background: #f0fff4; border-radius: 4px; font-size: 14px; color: #276749;"><strong>Note:</strong> ${entry.sintomi}</div>` : ''}
-                  </div>
-                `).join('')}
-              </div>
-              ` : ''}
-
-              ${medicines.length > 0 && shareData.includeData.medicine ? `
-              <!-- Terapie Farmacologiche -->
-              <div style="background: #f0f4ff; border: 1px solid #a5b4fc; border-radius: 8px; padding: 20px; margin: 25px 0;">
-                <h3 style="color: #3730a3; margin: 0 0 20px 0;">💊 Terapie Farmacologiche Attuali</h3>
-                
-                <table style="width: 100%; border-collapse: collapse; border: 1px solid #c7d2fe; border-radius: 6px; overflow: hidden;">
-                  <thead>
-                    <tr style="background: #e0e7ff;">
-                      <th style="padding: 12px; text-align: left; font-weight: 600; color: #3730a3;">Farmaco</th>
-                      <th style="padding: 12px; text-align: center; font-weight: 600; color: #3730a3;">Dosaggio</th>
-                      <th style="padding: 12px; text-align: center; font-weight: 600; color: #3730a3;">Orario</th>
-                      <th style="padding: 12px; text-align: center; font-weight: 600; color: #3730a3;">Frequenza</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${medicines.map((medicine, index) => `
-                      <tr style="background: ${index % 2 === 0 ? 'white' : '#f8fafc'};">
-                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; color: #2d3748; font-weight: 500;">${medicine.nome}</td>
-                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: center; color: #4338ca; font-weight: bold;">${medicine.dosaggio}</td>
-                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: center; color: #4a5568;">${medicine.ora}</td>
-                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: center; color: #4a5568; font-size: 14px;">${medicine.frequenza}</td>
-                      </tr>
-                      ${medicine.note ? `<tr style="background: ${index % 2 === 0 ? '#f8fafc' : 'white'};"><td colspan="4" style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; font-style: italic; color: #6b7280; font-size: 14px;"><strong>Note:</strong> ${medicine.note}</td></tr>` : ''}
-                    `).join('')}
-                  </tbody>
-                </table>
-              </div>
-              ` : ''}
-
-              <!-- Note Sicurezza -->
-              <div style="background: #fffbeb; border: 1px solid #f59e0b; border-radius: 8px; padding: 15px; margin: 25px 0;">
-                <p style="color: #92400e; margin: 0; font-size: 14px;">
-                  🔒 <strong>Privacy e Sicurezza:</strong> Questi dati medici sono riservati e protetti. 
-                  Utilizzali esclusivamente per scopi medico-assistenziali autorizzati.
-                </p>
-              </div>
-            </div>
-
-            <!-- Footer -->
-            <div style="background: #f7fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
-              <p style="color: #718096; font-size: 14px; margin: 0;">
-                <strong>MediConnect</strong> - Dati condivisi il ${new Date().toLocaleDateString('it-IT')} alle ${new Date().toLocaleTimeString('it-IT')}<br>
-                Per assistenza: <a href="mailto:support@mediconnect.app" style="color: #4299e1;">support@mediconnect.app</a>
-              </p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #4299e1; margin: 0;">🏥 MediConnect</h1>
+            <h2 style="color: #2d3748; margin: 10px 0;">Dati Medici Condivisi</h2>
+          </div>
+          
+          <p style="font-size: 16px; color: #4a5568;">
+            Hai ricevuto nuovi dati medici tramite MediConnect.
+          </p>
+          
+          <div style="background: #f7fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #2d3748; margin-top: 0;">Riepilogo Dati:</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <p style="margin: 5px 0;"><strong>📈 Pressione:</strong> ${dataByType.pressione} misurazioni</p>
+              <p style="margin: 5px 0;"><strong>💗 Battiti:</strong> ${dataByType.battiti} misurazioni</p>
+              <p style="margin: 5px 0;"><strong>🫁 Saturazione:</strong> ${dataByType.saturazione} misurazioni</p>
+              <p style="margin: 5px 0;"><strong>🩸 Glicemia:</strong> ${dataByType.glicemia} misurazioni</p>
+              <p style="margin: 5px 0;"><strong>🌡️ Temperatura:</strong> ${dataByType.temperatura} misurazioni</p>
+              <p style="margin: 5px 0;"><strong>💊 Medicine:</strong> ${shareData.includeData.medicine ? medicines.length : 0} farmaci</p>
             </div>
           </div>
-        </body>
-        </html>
+          
+          <div style="background: #fff5f5; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f56565;">
+            <h3 style="color: #2d3748; margin-top: 0;">Periodo dei Dati:</h3>
+            <p style="margin: 0; color: #4a5568;">
+              ${shareData.startDate && shareData.endDate ? 
+                `Dal ${new Date(shareData.startDate).toLocaleDateString('it-IT')} al ${new Date(shareData.endDate).toLocaleDateString('it-IT')}` : 
+                'Tutti i dati disponibili'
+              }
+            </p>
+          </div>
+          
+          ${dataToShare.length > 0 ? `
+          <div style="background: #f0fff4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #48bb78;">
+            <h3 style="color: #2d3748; margin-top: 0;">Ultime Misurazioni:</h3>
+            ${dataToShare.slice(0, 3).map(entry => `
+              <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
+                <p style="margin: 0; font-weight: bold;">${new Date(entry.date).toLocaleDateString('it-IT')} - ${entry.time}</p>
+                ${entry.pressione ? `<p style="margin: 2px 0;">Pressione: ${entry.pressione}</p>` : ''}
+                ${entry.battiti ? `<p style="margin: 2px 0;">Battiti: ${entry.battiti} bpm</p>` : ''}
+                ${entry.saturazione ? `<p style="margin: 2px 0;">Saturazione: ${entry.saturazione}%</p>` : ''}
+                ${entry.glicemia ? `<p style="margin: 2px 0;">Glicemia: ${entry.glicemia} mg/dL</p>` : ''}
+                ${entry.temperatura ? `<p style="margin: 2px 0;">Temperatura: ${entry.temperatura}°C</p>` : ''}
+              </div>
+            `).join('')}
+          </div>
+          ` : ''}
+          
+          <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+            <p style="color: #718096; font-size: 14px;">
+              Dati condivisi il ${new Date().toLocaleDateString('it-IT')} alle ${new Date().toLocaleTimeString('it-IT')}<br>
+              Tramite MediConnect - Piattaforma di Monitoraggio Sanitario
+            </p>
+          </div>
+        </div>
       `;
 
       await sendEmail({
@@ -801,8 +494,7 @@ const MedicalApp = () => {
         dateRange: shareData.startDate && shareData.endDate ? 
           shareData.startDate + ' - ' + shareData.endDate : 'Tutti i dati',
         sharedDate: new Date().toLocaleString('it-IT'),
-        status: 'Dati condivisi',
-        accessToken: dataToken
+        status: 'Dati condivisi'
       };
 
       setSharedWith(prev => {

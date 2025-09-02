@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, Thermometer, Droplet, Activity, Send, Share2, Calendar, Filter, UserPlus, Mail, Eye, Users, Pill, Clock, TrendingUp, Edit2, Trash2, Plus, BarChart3, LineChart, PieChart, Printer } from 'lucide-react';
+import { Heart, Thermometer, Droplet, Activity, Send, Share2, Calendar, Filter, UserPlus, Mail, Users, Pill, Clock, TrendingUp, Edit2, Trash2, Plus, BarChart3, Printer } from 'lucide-react';
 import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart as RechartsBarChart, Bar } from 'recharts';
 
 const MedicalApp = () => {
@@ -44,6 +44,7 @@ const MedicalApp = () => {
       medicine: true
     }
   });
+  
   const [showShareModal, setShowShareModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showPrintModal, setShowPrintModal] = useState(false);
@@ -51,7 +52,6 @@ const MedicalApp = () => {
   const [filterDate, setFilterDate] = useState('');
   const [chartType, setChartType] = useState('pressione');
   
-  // Print settings
   const [printOptions, setPrintOptions] = useState({
     includeHistory: true,
     includeCharts: true,
@@ -91,7 +91,7 @@ const MedicalApp = () => {
         saturazione: '97',
         glicemia: '95',
         temperatura: '36.5',
-        sintomi: 'Leggero mal di testa, stanchezza'
+        sintomi: 'Stanchezza generale'
       },
       {
         id: 3,
@@ -103,28 +103,6 @@ const MedicalApp = () => {
         glicemia: '92',
         temperatura: '36.4',
         sintomi: 'Nessun sintomo particolare'
-      },
-      {
-        id: 4,
-        date: '2025-08-28',
-        time: '19:45',
-        pressione: '122/79',
-        battiti: '70',
-        saturazione: '98',
-        glicemia: '88',
-        temperatura: '36.7',
-        sintomi: 'Tutto nella norma'
-      },
-      {
-        id: 5,
-        date: '2025-08-27',
-        time: '08:30',
-        pressione: '115/75',
-        battiti: '65',
-        saturazione: '99',
-        glicemia: '90',
-        temperatura: '36.3',
-        sintomi: 'Sensazione di benessere'
       }
     ];
     
@@ -151,81 +129,19 @@ const MedicalApp = () => {
     setMedicines(sampleMedicines);
   }, []);
 
-  // Real email sending function using EmailJS or similar service
+  // Simulate email sending
   const sendEmail = async (emailData) => {
     try {
-      // For real implementation, you would use a service like EmailJS
-      // Here's an example with EmailJS integration:
+      console.log('Email inviata:', emailData.to);
+      console.log('Oggetto:', emailData.subject);
+      console.log('Contenuto HTML:', emailData.html);
       
-      /*
-      // First install EmailJS: npm install emailjs-com
-      // Then import it: import emailjs from 'emailjs-com';
+      // Simulate delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      const templateParams = {
-        to_email: emailData.to,
-        to_name: emailData.toName || emailData.to.split('@')[0],
-        from_name: 'MediConnect',
-        subject: emailData.subject,
-        message: emailData.html,
-        reply_to: 'noreply@mediconnect.app'
-      };
-
-      const result = await emailjs.send(
-        'YOUR_SERVICE_ID', // Get from EmailJS dashboard
-        'YOUR_TEMPLATE_ID', // Get from EmailJS dashboard  
-        templateParams,
-        'YOUR_PUBLIC_KEY' // Get from EmailJS dashboard
-      );
-      
-      return { status: 200, messageId: result.text };
-      */
-      
-      // For demo purposes, we'll simulate the email sending
-      console.log('📧 Email simulata inviata:', {
-        to: emailData.to,
-        subject: emailData.subject,
-        type: 'MediConnect notification'
-      });
-      
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // For now, we'll show the email content in console and alert
-      console.log('📧 Contenuto email:', emailData.html);
-      
-      // In a real app, you'd integrate with a backend API that sends emails
-      // Example backend integration:
-      /*
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + userToken
-        },
-        body: JSON.stringify({
-          to: emailData.to,
-          subject: emailData.subject,
-          html: emailData.html,
-          from: 'noreply@mediconnect.app'
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to send email');
-      }
-      
-      return await response.json();
-      */
-      
-      return {
-        status: 200,
-        messageId: `sim_${Date.now()}`,
-        text: 'Email simulata inviata con successo'
-      };
-      
+      return { status: 200, messageId: `msg_${Date.now()}` };
     } catch (error) {
-      console.error('Errore invio email:', error);
-      throw new Error(`Errore nell'invio dell'email: ${error.message}`);
+      throw new Error('Errore invio email: ' + error.message);
     }
   };
 
@@ -238,7 +154,8 @@ const MedicalApp = () => {
   };
 
   const handleSubmit = () => {
-    if (!formData.pressione && !formData.battiti && !formData.saturazione && !formData.glicemia && !formData.temperatura) {
+    if (!formData.pressione && !formData.battiti && !formData.saturazione && 
+        !formData.glicemia && !formData.temperatura) {
       alert('Inserisci almeno un valore!');
       return;
     }
@@ -293,15 +210,11 @@ const MedicalApp = () => {
           : item
       ));
       setEditingMedicine(null);
-      alert('Medicina aggiornata con successo!');
+      alert('Medicina aggiornata!');
     } else {
-      const newMedicine = {
-        id: Date.now(),
-        ...medicineData
-      };
-
+      const newMedicine = { id: Date.now(), ...medicineData };
       setMedicines(prev => [...prev, newMedicine]);
-      alert('Medicina aggiunta con successo!');
+      alert('Medicina aggiunta!');
     }
 
     setMedicineData({
@@ -332,7 +245,7 @@ const MedicalApp = () => {
   };
 
   const deleteData = (id) => {
-    if (window.confirm('Sei sicuro di voler eliminare questa misurazione?')) {
+    if (window.confirm('Eliminare questa misurazione?')) {
       setMedicalData(prev => prev.filter(item => item.id !== id));
       alert('Misurazione eliminata!');
     }
@@ -353,7 +266,7 @@ const MedicalApp = () => {
   };
 
   const deleteMedicine = (id) => {
-    if (window.confirm('Sei sicuro di voler eliminare questa medicina?')) {
+    if (window.confirm('Eliminare questa medicina?')) {
       setMedicines(prev => prev.filter(item => item.id !== id));
       alert('Medicina eliminata!');
     }
@@ -366,112 +279,37 @@ const MedicalApp = () => {
     }
 
     try {
-      const emailData = {
+      const emailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h1 style="color: #4299e1;">MediConnect - Invito</h1>
+          <p>Ciao ${shareData.nome},</p>
+          <p>Sei stato invitato a utilizzare MediConnect per monitorare i dati sanitari.</p>
+          <p>Ruolo: ${shareData.ruolo}</p>
+          <p>Scarica l'app e inizia subito!</p>
+        </div>
+      `;
+
+      await sendEmail({
         to: shareData.email,
-        toName: shareData.nome,
-        subject: `Invito su MediConnect - Monitoraggio Salute`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 15px; text-align: center; margin-bottom: 30px;">
-              <h1 style="color: white; margin: 0; font-size: 28px;">🏥 MediConnect</h1>
-              <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">Monitoraggio Sanitario Digitale</p>
-            </div>
-            
-            <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-              <h2 style="color: #2d3748; margin-top: 0;">Ciao ${shareData.nome}!</h2>
-              
-              <p style="color: #4a5568; line-height: 1.6; font-size: 16px;">
-                Sei stato invitato a utilizzare <strong>MediConnect</strong>, l'app per il monitoraggio della salute che permette di:
-              </p>
-              
-              <div style="background: #e6fffa; border-left: 4px solid #4fd1c7; padding: 20px; margin: 20px 0; border-radius: 8px;">
-                <h3 style="color: #2c7a7b; margin: 0 0 15px 0;">🎯 Cosa puoi fare con MediConnect:</h3>
-                <ul style="color: #2c7a7b; margin: 0; padding-left: 20px; line-height: 1.6;">
-                  <li>📊 Visualizzare dati medici in tempo reale</li>
-                  <li>📈 Monitorare grafici e andamenti</li>
-                  <li>💊 Gestire terapie farmacologiche</li>
-                  <li>🔔 Ricevere aggiornamenti automatici</li>
-                  <li>📱 Accesso da qualsiasi dispositivo</li>
-                </ul>
-              </div>
-              
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="#" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 18px; display: inline-block; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
-                  🚀 Inizia Subito con MediConnect
-                </a>
-              </div>
-              
-              <div style="background: #fff5f5; border: 1px solid #fed7d7; border-radius: 10px; padding: 20px; margin: 25px 0;">
-                <h3 style="color: #c53030; margin: 0 0 10px 0;">🔒 Privacy e Sicurezza</h3>
-                <p style="color: #c53030; margin: 0; font-size: 14px; line-height: 1.5;">
-                  • Tutti i dati sono crittografati end-to-end<br>
-                  • Accesso solo con autorizzazione esplicita<br>
-                  • Conformità GDPR e normative sanitarie<br>
-                  • Possibilità di revocare l'accesso in qualsiasi momento
-                </p>
-              </div>
-              
-              <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; margin-top: 30px;">
-                <p style="color: #718096; font-size: 14px; margin: 0;">
-                  Hai ricevuto questo invito perché qualcuno ti ha aggiunto come <strong>${shareData.ruolo}</strong> su MediConnect.
-                </p>
-                <p style="color: #718096; font-size: 14px; margin: 10px 0 0 0;">
-                  Per assistenza: support@mediconnect.app
-                </p>
-              </div>
-            </div>
-            
-            <div style="text-align: center; margin-top: 20px; color: #a0aec0; font-size: 12px;">
-              <p>© 2025 MediConnect. Tutti i diritti riservati.</p>
-            </div>
-          </div>
-        `
-      };
+        subject: 'Invito MediConnect',
+        html: emailHtml
+      });
 
-      await sendEmail(emailData);
-
-      const inviteInfo = {
+      setSharedWith(prev => [...prev, {
         email: shareData.email,
         nome: shareData.nome,
         ruolo: shareData.ruolo,
         invitedDate: new Date().toLocaleString('it-IT'),
-        status: 'Invitato',
-        emailSent: true
-      };
+        status: 'Invitato'
+      }]);
 
-      setSharedWith(prev => [inviteInfo, ...prev]);
       setShowInviteModal(false);
-      
-      alert(`✅ Invito inviato con successo!
-
-📧 Destinatario: ${shareData.nome} (${shareData.email})
-🏷️ Ruolo: ${shareData.ruolo}
-
-L'email include:
-📱 Link diretto all'app MediConnect  
-📋 Istruzioni complete per l'accesso
-🔒 Informazioni su privacy e sicurezza
-🎯 Guida alle funzionalità principali
-
-L'invitato riceverà tutto il necessario per iniziare!`);
+      alert('Invito inviato con successo! Controlla la console per i dettagli.');
       
     } catch (error) {
-      console.error('Errore invio email:', error);
-      alert(`❌ Errore nell'invio dell'invito
-
-Il sistema ha simulato l'invio dell'email.
-In un'implementazione reale, configurare:
-
-🔧 Opzioni disponibili:
-• EmailJS per invio client-side
-• Backend API con servizi come SendGrid
-• Server SMTP personalizzato
-
-📧 L'email è stata generata e mostrata nella console del browser.
-Controlla la console per vedere il contenuto dell'email.`);
+      alert('Errore invio invito: ' + error.message);
     }
-    
-    // Reset form
+
     setShareData({
       email: '',
       nome: '',
@@ -499,182 +337,930 @@ Controlla la console per vedere il contenuto dell'email.`);
         });
       }
 
-      const emailData = {
-        to: shareData.email,
-        subject: `Nuovi dati medici condivisi - MediConnect`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 15px; text-align: center; margin-bottom: 25px;">
-              <h1 style="color: white; margin: 0;">📊 Dati Medici Aggiornati</h1>
-              <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">MediConnect</p>
-            </div>
-            
-            <div style="background: white; padding: 25px; border-radius: 15px; border: 1px solid #e2e8f0;">
-              <p style="font-size: 16px; margin-bottom: 20px;">Sono stati condivisi nuovi dati medici con te.</p>
-              
-              <div style="background: #f7fafc; border-radius: 10px; padding: 20px; margin: 20px 0;">
-                <h3 style="color: #2d3748; margin: 0 0 15px 0;">📋 Riepilogo Condivisione:</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                  <div style="text-align: center; padding: 15px; background: white; border-radius: 8px; border: 2px solid #4299e1;">
-                    <div style="font-size: 24px; font-weight: bold; color: #4299e1;">${dataToShare.length}</div>
-                    <div style="color: #718096; font-size: 14px;">Misurazioni</div>
-                  </div>
-                  <div style="text-align: center; padding: 15px; background: white; border-radius: 8px; border: 2px solid #805ad5;">
-                    <div style="font-size: 24px; font-weight: bold; color: #805ad5;">${shareData.includeData.medicine ? medicines.length : 0}</div>
-                    <div style="color: #718096; font-size: 14px;">Medicine</div>
-                  </div>
-                </div>
-                <div style="margin-top: 15px; padding: 10px; background: #e6fffa; border-radius: 6px;">
-                  <strong style="color: #2c7a7b;">📅 Periodo:</strong> 
-                  <span style="color: #2c7a7b;">${shareData.startDate && shareData.endDate ? 
-                    `${shareData.startDate} - ${shareData.endDate}` : 'Tutti i dati'}</span>
-                </div>
-              </div>
-              
-              <div style="background: #e6fffa; border-radius: 10px; padding: 20px; margin: 20px 0;">
-                <h4 style="color: #2c7a7b; margin: 0 0 15px 0;">📊 Dati inclusi:</h4>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
-                  ${Object.entries({
-                    pressione: '❤️ Pressione',
-                    battiti: '💓 Battiti', 
-                    saturazione: '🫁 Saturazione',
-                    glicemia: '🩸 Glicemia',
-                    temperatura: '🌡️ Temperatura',
-                    sintomi: '📝 Sintomi',
-                    medicine: '💊 Medicine'
-                  }).map(([key, label]) => 
-                    shareData.includeData[key] ? 
-                    `<div style="background: white; padding: 8px; border-radius: 6px; font-size: 14px;">${label}</div>` : 
-                    ''
-                  ).join('')}
-                </div>
-              </div>
-              
-              <div style="text-align: center; margin: 25px 0;">
-                <a href="#" style="background: #4299e1; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold;">
-                  📱 Visualizza su MediConnect
-                </a>
-              </div>
-              
-              <div style="background: #fff5f5; border: 1px solid #fed7d7; border-radius: 8px; padding: 15px; font-size: 14px; color: #c53030;">
-                <strong>🔒 Importante:</strong> I dati sono protetti e accessibili solo a te. 
-                L'accesso può essere revocato in qualsiasi momento dal proprietario.
-              </div>
-            </div>
-          </div>
-        `
-      };
+      const emailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h1 style="color: #4299e1;">Dati Medici Condivisi</h1>
+          <p>Hai ricevuto nuovi dati medici da MediConnect.</p>
+          <p>Misurazioni: ${dataToShare.length}</p>
+          <p>Medicine: ${shareData.includeData.medicine ? medicines.length : 0}</p>
+          <p>Periodo: ${shareData.startDate && shareData.endDate ? 
+            shareData.startDate + ' - ' + shareData.endDate : 'Tutti i dati'}</p>
+        </div>
+      `;
 
-      await sendEmail(emailData);
+      await sendEmail({
+        to: shareData.email,
+        subject: 'Dati Medici - MediConnect',
+        html: emailHtml
+      });
 
       const shareInfo = {
         email: shareData.email,
         dataCount: dataToShare.length,
         medicineCount: shareData.includeData.medicine ? medicines.length : 0,
         dateRange: shareData.startDate && shareData.endDate ? 
-          `${shareData.startDate} - ${shareData.endDate}` : 'Tutti i dati',
+          shareData.startDate + ' - ' + shareData.endDate : 'Tutti i dati',
         sharedDate: new Date().toLocaleString('it-IT'),
-        emailSent: true
+        status: 'Dati condivisi'
       };
 
       setSharedWith(prev => prev.map(item => 
-        item.email === shareData.email 
-          ? { ...item, ...shareInfo, status: 'Dati condivisi' }
-          : item
+        item.email === shareData.email ? { ...item, ...shareInfo } : item
       ));
       
       setShowShareModal(false);
-      
-      alert(`✅ Dati condivisi con successo!
-
-📧 Destinatario: ${shareData.email}
-📊 Contenuto condiviso:
-• ${shareInfo.dataCount} misurazioni mediche
-• ${shareInfo.medicineCount} medicine
-• Periodo: ${shareInfo.dateRange}
-
-L'email è stata generata e inviata (simulato).
-Controlla la console del browser per vedere il contenuto.`);
+      alert('Dati condivisi con successo! Controlla la console per i dettagli.');
 
     } catch (error) {
-      console.error('Errore condivisione:', error);
-      alert(`❌ Errore nella condivisione dei dati
-
-Il sistema ha simulato l'invio dei dati.
-Per l'implementazione reale, configurare un servizio di email.
-
-📧 L'email con i dati è stata generata e mostrata nella console del browser.`);
+      alert('Errore condivisione: ' + error.message);
     }
   };
 
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
-    const printContent = generatePrintContent();
-    
-    printWindow.document.write(printContent);
-    printWindow.document.close();
-    printWindow.print();
-    
-    setShowPrintModal(false);
-  };
-
-  const generatePrintContent = () => {
     let content = `
       <!DOCTYPE html>
       <html>
       <head>
-        <title>MediConnect - Report Medico</title>
+        <title>MediConnect - Report</title>
         <style>
-          body { font-family: Arial, sans-serif; margin: 20px; color: #333; line-height: 1.6; }
-          .header { text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; }
-          .section { margin: 30px 0; page-break-inside: avoid; }
-          .section h2 { color: #2d3748; border-bottom: 2px solid #4299e1; padding-bottom: 10px; }
+          body { font-family: Arial, sans-serif; margin: 20px; }
           table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-          th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-          th { background-color: #f8f9fa; font-weight: bold; }
-          tr:nth-child(even) { background-color: #f8f9fa; }
-          .chart-placeholder { height: 300px; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; margin: 20px 0; background: #f8f9fa; border-radius: 10px; }
-          .medicine-item { background: #f7fafc; padding: 15px; margin: 10px 0; border-left: 4px solid #805ad5; border-radius: 5px; }
-          .footer { margin-top: 50px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #718096; text-align: center; }
-          .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
-          .stat-card { background: #f0f8ff; padding: 15px; border-radius: 8px; border-left: 4px solid #4299e1; }
-          @media print { 
-            body { margin: 0; } 
-            .section { page-break-inside: avoid; }
-          }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+          th { background-color: #f2f2f2; }
+          .header { text-align: center; margin-bottom: 30px; }
         </style>
       </head>
       <body>
         <div class="header">
-          <h1>🏥 MediConnect - Report Medico</h1>
-          <p>Generato il ${new Date().toLocaleDateString('it-IT', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          })}</p>
+          <h1>MediConnect - Report Medico</h1>
+          <p>Generato il ${new Date().toLocaleDateString('it-IT')}</p>
         </div>
     `;
 
     if (printOptions.includeHistory) {
-      const dataToInclude = printOptions.dateRange.start && printOptions.dateRange.end
-        ? medicalData.filter(entry => {
-            const entryDate = new Date(entry.date);
-            return entryDate >= new Date(printOptions.dateRange.start) && entryDate <= new Date(printOptions.dateRange.end);
-          })
-        : medicalData;
+      content += '<h2>Storico Misurazioni</h2><table><tr><th>Data</th><th>Ora</th><th>Pressione</th><th>Battiti</th><th>Saturazione</th><th>Glicemia</th><th>Temperatura</th><th>Note</th></tr>';
+      medicalData.forEach(entry => {
+        content += `<tr>
+          <td>${new Date(entry.date).toLocaleDateString('it-IT')}</td>
+          <td>${entry.time}</td>
+          <td>${entry.pressione || '-'}</td>
+          <td>${entry.battiti || '-'}</td>
+          <td>${entry.saturazione || '-'}</td>
+          <td>${entry.glicemia || '-'}</td>
+          <td>${entry.temperatura || '-'}</td>
+          <td>${entry.sintomi || '-'}</td>
+        </tr>`;
+      });
+      content += '</table>';
+    }
 
-      content += `
-        <div class="section">
-          <h2>📋 Storico Misurazioni (${dataToInclude.length})</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>📅 Data</th>
-                <th>🕐 Ora</th>
-                <th>❤️ Pressione</th>
-                <th>💓 Battiti</th>
-                <th>🫁 Saturazione</th>
-                <th>🩸 Glicemia</th>
-                <th>🌡️ Temperatura</th>
-                <th>💭 Note</th>
+    if (printOptions.includeCharts) {
+      content += '<h2>Grafici</h2><p>I grafici sono disponibili nella versione digitale dell\'app.</p>';
+    }
+
+    content += '</body></html>';
+    
+    printWindow.document.write(content);
+    printWindow.document.close();
+    printWindow.print();
+    setShowPrintModal(false);
+  };
+
+  const filteredMedicalData = filterDate ? 
+    medicalData.filter(entry => entry.date === filterDate) : 
+    medicalData;
+
+  const chartData = medicalData.slice(-10).reverse().map(entry => ({
+    date: new Date(entry.date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' }),
+    pressione_sys: entry.pressione ? parseInt(entry.pressione.split('/')[0]) : null,
+    pressione_dia: entry.pressione ? parseInt(entry.pressione.split('/')[1]) : null,
+    battiti: entry.battiti ? parseInt(entry.battiti) : null,
+    saturazione: entry.saturazione ? parseInt(entry.saturazione) : null,
+    glicemia: entry.glicemia ? parseInt(entry.glicemia) : null,
+    temperatura: entry.temperatura ? parseFloat(entry.temperatura) : null
+  }));
+
+  const styles = {
+    container: {
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      padding: '20px',
+      fontFamily: 'Arial, sans-serif'
+    },
+    card: {
+      backgroundColor: 'white',
+      borderRadius: '15px',
+      padding: '25px',
+      marginBottom: '20px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+    },
+    title: {
+      fontSize: '2rem',
+      fontWeight: 'bold',
+      color: '#2d3748',
+      textAlign: 'center',
+      margin: '0 0 10px 0'
+    },
+    subtitle: {
+      fontSize: '1rem',
+      color: '#4a5568',
+      textAlign: 'center',
+      marginBottom: '20px'
+    },
+    tabContainer: {
+      display: 'flex',
+      gap: '10px',
+      marginBottom: '20px',
+      flexWrap: 'wrap',
+      justifyContent: 'center'
+    },
+    tab: {
+      backgroundColor: '#f7fafc',
+      border: '1px solid #e2e8f0',
+      borderRadius: '8px',
+      padding: '10px 15px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '5px'
+    },
+    activeTab: {
+      backgroundColor: '#4299e1',
+      color: 'white'
+    },
+    formGrid: {
+      display: 'grid',
+      gap: '15px',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+      marginBottom: '20px'
+    },
+    inputGroup: {
+      display: 'flex',
+      flexDirection: 'column'
+    },
+    label: {
+      display: 'flex',
+      alignItems: 'center',
+      fontSize: '14px',
+      fontWeight: '600',
+      marginBottom: '5px',
+      gap: '5px'
+    },
+    input: {
+      padding: '10px',
+      border: '1px solid #e2e8f0',
+      borderRadius: '8px',
+      fontSize: '14px'
+    },
+    textarea: {
+      padding: '10px',
+      border: '1px solid #e2e8f0',
+      borderRadius: '8px',
+      minHeight: '80px',
+      fontSize: '14px',
+      fontFamily: 'Arial, sans-serif'
+    },
+    select: {
+      padding: '10px',
+      border: '1px solid #e2e8f0',
+      borderRadius: '8px',
+      fontSize: '14px'
+    },
+    button: {
+      backgroundColor: '#4299e1',
+      color: 'white',
+      border: 'none',
+      borderRadius: '8px',
+      padding: '12px 20px',
+      fontSize: '14px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px'
+    },
+    buttonSuccess: {
+      backgroundColor: '#48bb78',
+      color: 'white',
+      border: 'none',
+      borderRadius: '8px',
+      padding: '8px 15px',
+      fontSize: '14px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '5px'
+    },
+    buttonDanger: {
+      backgroundColor: '#e53e3e',
+      color: 'white',
+      border: 'none',
+      borderRadius: '6px',
+      padding: '6px 10px',
+      fontSize: '12px',
+      cursor: 'pointer'
+    },
+    buttonSecondary: {
+      backgroundColor: '#a0aec0',
+      color: 'white',
+      border: 'none',
+      borderRadius: '6px',
+      padding: '6px 10px',
+      fontSize: '12px',
+      cursor: 'pointer'
+    },
+    modal: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 1000,
+      padding: '20px'
+    },
+    modalContent: {
+      backgroundColor: 'white',
+      borderRadius: '15px',
+      padding: '25px',
+      width: '100%',
+      maxWidth: '500px',
+      maxHeight: '80vh',
+      overflow: 'auto'
+    },
+    dataCard: {
+      backgroundColor: 'white',
+      border: '1px solid #e2e8f0',
+      borderRadius: '10px',
+      padding: '15px',
+      marginBottom: '10px',
+      position: 'relative'
+    },
+    actionButtons: {
+      position: 'absolute',
+      top: '10px',
+      right: '10px',
+      display: 'flex',
+      gap: '5px'
+    },
+    emptyState: {
+      textAlign: 'center',
+      padding: '40px',
+      color: '#718096'
+    }
+  };
+
+  return (
+    <div style={styles.container}>
+      <div style={{maxWidth: '1200px', margin: '0 auto'}}>
+        
+        {/* Header */}
+        <div style={styles.card}>
+          <h1 style={styles.title}>🏥 MediConnect</h1>
+          <p style={styles.subtitle}>Monitora la tua salute con semplicità</p>
+          
+          <div style={styles.tabContainer}>
+            {[
+              {id: 'insert', icon: Send, label: 'Inserisci'},
+              {id: 'medicines', icon: Pill, label: 'Medicine'},
+              {id: 'history', icon: Activity, label: 'Storico'},
+              {id: 'charts', icon: TrendingUp, label: 'Grafici'},
+              {id: 'share', icon: Share2, label: 'Condividi'}
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  ...styles.tab,
+                  ...(activeTab === tab.id ? styles.activeTab : {})
+                }}
+              >
+                <tab.icon size={16} />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Insert Tab */}
+        {activeTab === 'insert' && (
+          <div style={styles.card}>
+            <h2>{editingId ? 'Modifica Misurazione' : 'Inserisci Dati'}</h2>
+            
+            <div style={styles.formGrid}>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>
+                  <Calendar size={16} />
+                  Data
+                </label>
+                <input
+                  type="date"
+                  value={formData.data}
+                  onChange={(e) => handleInputChange('data', e.target.value)}
+                  style={styles.input}
+                />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>
+                  <Clock size={16} />
+                  Ora
+                </label>
+                <input
+                  type="time"
+                  value={formData.ora}
+                  onChange={(e) => handleInputChange('ora', e.target.value)}
+                  style={styles.input}
+                />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>
+                  <Heart size={16} />
+                  Pressione
+                </label>
+                <input
+                  type="text"
+                  placeholder="es. 120/80"
+                  value={formData.pressione}
+                  onChange={(e) => handleInputChange('pressione', e.target.value)}
+                  style={styles.input}
+                />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>
+                  <Activity size={16} />
+                  Battiti (bpm)
+                </label>
+                <input
+                  type="number"
+                  placeholder="es. 72"
+                  value={formData.battiti}
+                  onChange={(e) => handleInputChange('battiti', e.target.value)}
+                  style={styles.input}
+                />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>
+                  <Droplet size={16} />
+                  Saturazione O2 (%)
+                </label>
+                <input
+                  type="number"
+                  placeholder="es. 98"
+                  min="0"
+                  max="100"
+                  value={formData.saturazione}
+                  onChange={(e) => handleInputChange('saturazione', e.target.value)}
+                  style={styles.input}
+                />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>
+                  <Droplet size={16} />
+                  Glicemia (mg/dL)
+                </label>
+                <input
+                  type="number"
+                  placeholder="es. 95"
+                  value={formData.glicemia}
+                  onChange={(e) => handleInputChange('glicemia', e.target.value)}
+                  style={styles.input}
+                />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>
+                  <Thermometer size={16} />
+                  Temperatura (°C)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  placeholder="es. 36.5"
+                  value={formData.temperatura}
+                  onChange={(e) => handleInputChange('temperatura', e.target.value)}
+                  style={styles.input}
+                />
+              </div>
+
+              <div style={{...styles.inputGroup, gridColumn: '1 / -1'}}>
+                <label style={styles.label}>
+                  <Activity size={16} />
+                  Sintomi e Note
+                </label>
+                <textarea
+                  placeholder="Descrivi eventuali sintomi..."
+                  value={formData.sintomi}
+                  onChange={(e) => handleInputChange('sintomi', e.target.value)}
+                  style={styles.textarea}
+                />
+              </div>
+            </div>
+
+            <button onClick={handleSubmit} style={styles.button}>
+              <Send size={16} />
+              {editingId ? 'Aggiorna' : 'Salva'}
+            </button>
+          </div>
+        )}
+
+        {/* Medicines Tab */}
+        {activeTab === 'medicines' && (
+          <div style={styles.card}>
+            <h2>{editingMedicine ? 'Modifica Medicina' : 'Aggiungi Medicina'}</h2>
+            
+            <div style={styles.formGrid}>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>
+                  <Pill size={16} />
+                  Nome *
+                </label>
+                <input
+                  type="text"
+                  placeholder="es. Enalapril"
+                  value={medicineData.nome}
+                  onChange={(e) => handleMedicineChange('nome', e.target.value)}
+                  style={styles.input}
+                />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>
+                  <Activity size={16} />
+                  Dosaggio *
+                </label>
+                <input
+                  type="text"
+                  placeholder="es. 10mg"
+                  value={medicineData.dosaggio}
+                  onChange={(e) => handleMedicineChange('dosaggio', e.target.value)}
+                  style={styles.input}
+                />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>
+                  <Clock size={16} />
+                  Orario *
+                </label>
+                <input
+                  type="time"
+                  value={medicineData.ora}
+                  onChange={(e) => handleMedicineChange('ora', e.target.value)}
+                  style={styles.input}
+                />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>
+                  <Calendar size={16} />
+                  Frequenza
+                </label>
+                <select
+                  value={medicineData.frequenza}
+                  onChange={(e) => handleMedicineChange('frequenza', e.target.value)}
+                  style={styles.select}
+                >
+                  <option value="quotidiana">Quotidiana</option>
+                  <option value="bigiornaliera">Due volte al giorno</option>
+                  <option value="settimanale">Settimanale</option>
+                  <option value="secondo_necessità">Al bisogno</option>
+                </select>
+              </div>
+
+              <div style={{...styles.inputGroup, gridColumn: '1 / -1'}}>
+                <label style={styles.label}>
+                  <Activity size={16} />
+                  Note
+                </label>
+                <textarea
+                  placeholder="es. A stomaco pieno..."
+                  value={medicineData.note}
+                  onChange={(e) => handleMedicineChange('note', e.target.value)}
+                  style={styles.textarea}
+                />
+              </div>
+            </div>
+
+            <button onClick={handleMedicineSubmit} style={styles.buttonSuccess}>
+              <Plus size={16} />
+              {editingMedicine ? 'Aggiorna' : 'Aggiungi'}
+            </button>
+
+            <div style={{marginTop: '20px'}}>
+              <h3>Medicine ({medicines.length})</h3>
+              {medicines.length === 0 ? (
+                <div style={styles.emptyState}>
+                  <Pill size={48} />
+                  <p>Nessuna medicina registrata</p>
+                </div>
+              ) : (
+                medicines.map(medicine => (
+                  <div key={medicine.id} style={styles.dataCard}>
+                    <div style={styles.actionButtons}>
+                      <button
+                        onClick={() => editMedicine(medicine.id)}
+                        style={styles.buttonSecondary}
+                      >
+                        <Edit2 size={12} />
+                      </button>
+                      <button
+                        onClick={() => deleteMedicine(medicine.id)}
+                        style={styles.buttonDanger}
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                    <h4>{medicine.nome} - {medicine.dosaggio}</h4>
+                    <p>Orario: {medicine.ora} | Frequenza: {medicine.frequenza}</p>
+                    {medicine.note && <p><em>{medicine.note}</em></p>}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* History Tab */}
+        {activeTab === 'history' && (
+          <div style={styles.card}>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+              <h2>Storico ({filteredMedicalData.length}/{medicalData.length})</h2>
+              <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
+                <Filter size={16} />
+                <input
+                  type="date"
+                  value={filterDate}
+                  onChange={(e) => setFilterDate(e.target.value)}
+                  style={styles.input}
+                />
+                {filterDate && (
+                  <button onClick={() => setFilterDate('')} style={styles.buttonDanger}>
+                    Reset
+                  </button>
+                )}
+                <button onClick={() => setShowPrintModal(true)} style={styles.button}>
+                  <Printer size={16} />
+                  Stampa
+                </button>
+              </div>
+            </div>
+            
+            {filteredMedicalData.length === 0 ? (
+              <div style={styles.emptyState}>
+                <Activity size={48} />
+                <p>{filterDate ? 'Nessun dato per questa data' : 'Inizia il monitoraggio'}</p>
+              </div>
+            ) : (
+              filteredMedicalData.map(entry => (
+                <div key={entry.id} style={styles.dataCard}>
+                  <div style={styles.actionButtons}>
+                    <button onClick={() => editData(entry.id)} style={styles.buttonSecondary}>
+                      <Edit2 size={12} />
+                    </button>
+                    <button onClick={() => deleteData(entry.id)} style={styles.buttonDanger}>
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                  
+                  <div style={{marginBottom: '10px'}}>
+                    <strong>{new Date(entry.date).toLocaleDateString('it-IT')} - {entry.time}</strong>
+                  </div>
+                  
+                  <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '10px'}}>
+                    {entry.pressione && <div><strong>Pressione:</strong> {entry.pressione}</div>}
+                    {entry.battiti && <div><strong>Battiti:</strong> {entry.battiti} bpm</div>}
+                    {entry.saturazione && <div><strong>Saturazione:</strong> {entry.saturazione}%</div>}
+                    {entry.glicemia && <div><strong>Glicemia:</strong> {entry.glicemia} mg/dL</div>}
+                    {entry.temperatura && <div><strong>Temperatura:</strong> {entry.temperatura}°C</div>}
+                  </div>
+                  
+                  {entry.sintomi && (
+                    <div style={{marginTop: '10px', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '5px'}}>
+                      <strong>Note:</strong> {entry.sintomi}
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* Charts Tab */}
+        {activeTab === 'charts' && (
+          <div style={styles.card}>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+              <h2>Grafici e Andamenti</h2>
+              <button onClick={() => setShowPrintModal(true)} style={styles.button}>
+                <Printer size={16} />
+                Stampa Grafici
+              </button>
+            </div>
+            
+            <div style={{display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap'}}>
+              {[
+                {id: 'pressione', icon: Heart, label: 'Pressione'},
+                {id: 'battiti', icon: Activity, label: 'Battiti'},
+                {id: 'saturazione', icon: Droplet, label: 'Saturazione'},
+                {id: 'glicemia', icon: Droplet, label: 'Glicemia'},
+                {id: 'temperatura', icon: Thermometer, label: 'Temperatura'}
+              ].map(chart => (
+                <button
+                  key={chart.id}
+                  onClick={() => setChartType(chart.id)}
+                  style={{
+                    ...styles.tab,
+                    ...(chartType === chart.id ? styles.activeTab : {})
+                  }}
+                >
+                  <chart.icon size={16} />
+                  {chart.label}
+                </button>
+              ))}
+            </div>
+
+            {chartData.length === 0 ? (
+              <div style={styles.emptyState}>
+                <BarChart3 size={48} />
+                <p>Aggiungi dati per visualizzare i grafici</p>
+              </div>
+            ) : (
+              <div style={{height: '400px', width: '100%'}}>
+                <ResponsiveContainer width="100%" height="100%">
+                  {chartType === 'pressione' ? (
+                    <RechartsLineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Line 
+                        type="monotone" 
+                        dataKey="pressione_sys" 
+                        stroke="#e53e3e" 
+                        name="Sistolica"
+                        connectNulls={false}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="pressione_dia" 
+                        stroke="#3182ce" 
+                        name="Diastolica"
+                        connectNulls={false}
+                      />
+                    </RechartsLineChart>
+                  ) : chartType === 'battiti' ? (
+                    <RechartsLineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Line 
+                        type="monotone" 
+                        dataKey="battiti" 
+                        stroke="#e53e3e" 
+                        name="Battiti (bpm)"
+                        connectNulls={false}
+                      />
+                    </RechartsLineChart>
+                  ) : chartType === 'saturazione' ? (
+                    <RechartsLineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis domain={[90, 100]} />
+                      <Tooltip />
+                      <Line 
+                        type="monotone" 
+                        dataKey="saturazione" 
+                        stroke="#e53e3e" 
+                        name="Saturazione O2 (%)"
+                        connectNulls={false}
+                      />
+                    </RechartsLineChart>
+                  ) : chartType === 'glicemia' ? (
+                    <RechartsBarChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="glicemia" fill="#3182ce" name="Glicemia (mg/dL)" />
+                    </RechartsBarChart>
+                  ) : (
+                    <RechartsLineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis domain={[35, 40]} />
+                      <Tooltip />
+                      <Line 
+                        type="monotone" 
+                        dataKey="temperatura" 
+                        stroke="#dd6b20" 
+                        name="Temperatura (°C)"
+                        connectNulls={false}
+                      />
+                    </RechartsLineChart>
+                  )}
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Share Tab */}
+        {activeTab === 'share' && (
+          <div style={styles.card}>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+              <h2>Gestione Condivisioni</h2>
+              <div style={{display: 'flex', gap: '10px'}}>
+                <button onClick={() => setShowInviteModal(true)} style={styles.buttonSuccess}>
+                  <UserPlus size={16} />
+                  Invita
+                </button>
+                <button onClick={() => setShowShareModal(true)} style={styles.button}>
+                  <Share2 size={16} />
+                  Condividi
+                </button>
+              </div>
+            </div>
+
+            {sharedWith.length === 0 ? (
+              <div style={styles.emptyState}>
+                <Users size={48} />
+                <p>Nessuna condivisione attiva</p>
+              </div>
+            ) : (
+              sharedWith.map((share, index) => (
+                <div key={index} style={styles.dataCard}>
+                  <h4>{share.nome || share.email.split('@')[0]} ({share.ruolo})</h4>
+                  <p>Email: {share.email}</p>
+                  <p>Status: {share.status}</p>
+                  <p>Data: {share.invitedDate || share.sharedDate}</p>
+                  {share.dataCount && <p>Dati condivisi: {share.dataCount} misurazioni</p>}
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* Modals */}
+        {showInviteModal && (
+          <div style={styles.modal}>
+            <div style={styles.modalContent}>
+              <h3>Invita una Persona</h3>
+              
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>
+                  <Mail size={16} />
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  placeholder="dott.rossi@ospedale.it"
+                  value={shareData.email}
+                  onChange={(e) => setShareData(prev => ({ ...prev, email: e.target.value }))}
+                  style={styles.input}
+                />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>
+                  <Users size={16} />
+                  Nome *
+                </label>
+                <input
+                  type="text"
+                  placeholder="Dr. Mario Rossi"
+                  value={shareData.nome}
+                  onChange={(e) => setShareData(prev => ({ ...prev, nome: e.target.value }))}
+                  style={styles.input}
+                />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Ruolo</label>
+                <select
+                  value={shareData.ruolo}
+                  onChange={(e) => setShareData(prev => ({ ...prev, ruolo: e.target.value }))}
+                  style={styles.select}
+                >
+                  <option value="medico">Medico</option>
+                  <option value="familiare">Familiare</option>
+                  <option value="caregiver">Caregiver</option>
+                  <option value="altro">Altro</option>
+                </select>
+              </div>
+
+              <div style={{display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px'}}>
+                <button onClick={() => setShowInviteModal(false)} style={styles.buttonSecondary}>
+                  Annulla
+                </button>
+                <button onClick={handleInvite} style={styles.buttonSuccess}>
+                  <Send size={16} />
+                  Invia Invito
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showShareModal && (
+          <div style={styles.modal}>
+            <div style={styles.modalContent}>
+              <h3>Condividi Dati</h3>
+              
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Email destinatario</label>
+                <input
+                  type="email"
+                  placeholder="Inserisci email"
+                  value={shareData.email}
+                  onChange={(e) => setShareData(prev => ({ ...prev, email: e.target.value }))}
+                  style={styles.input}
+                />
+              </div>
+
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
+                <div style={styles.inputGroup}>
+                  <label style={styles.label}>Data inizio</label>
+                  <input
+                    type="date"
+                    value={shareData.startDate}
+                    onChange={(e) => setShareData(prev => ({ ...prev, startDate: e.target.value }))}
+                    style={styles.input}
+                  />
+                </div>
+                <div style={styles.inputGroup}>
+                  <label style={styles.label}>Data fine</label>
+                  <input
+                    type="date"
+                    value={shareData.endDate}
+                    onChange={(e) => setShareData(prev => ({ ...prev, endDate: e.target.value }))}
+                    style={styles.input}
+                  />
+                </div>
+              </div>
+
+              <div style={{display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px'}}>
+                <button onClick={() => setShowShareModal(false)} style={styles.buttonSecondary}>
+                  Annulla
+                </button>
+                <button onClick={handleShare} style={styles.buttonSuccess}>
+                  <Send size={16} />
+                  Condividi
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showPrintModal && (
+          <div style={styles.modal}>
+            <div style={styles.modalContent}>
+              <h3>Opzioni di Stampa</h3>
+              
+              <div style={{marginBottom: '15px'}}>
+                <label style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px'}}>
+                  <input
+                    type="checkbox"
+                    checked={printOptions.includeHistory}
+                    onChange={(e) => setPrintOptions(prev => ({ ...prev, includeHistory: e.target.checked }))}
+                  />
+                  Includi Storico Misurazioni
+                </label>
+                
+                <label style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                  <input
+                    type="checkbox"
+                    checked={printOptions.includeCharts}
+                    onChange={(e) => setPrintOptions(prev => ({ ...prev, includeCharts: e.target.checked }))}
+                  />
+                  Includi Grafici (solo riferimenti)
+                </label>
+              </div>
+
+              <div style={{display: 'flex', gap: '10px', justifyContent: 'flex-end'}}>
+                <button onClick={() => setShowPrintModal(false)} style={styles.buttonSecondary}>
+                  Annulla
+                </button>
+                <button onClick={handlePrint} style={styles.button}>
+                  <Printer size={16} />
+                  Stampa
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+};
+
+export default MedicalApp;
